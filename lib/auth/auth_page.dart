@@ -1,10 +1,5 @@
-import 'dart:convert';
-
-import 'package:essentiel/main.dart';
 import 'package:essentiel/pages/home.dart';
 import 'package:essentiel/signup_login/sign_in.dart';
-import 'package:essentiel/user/user.dart';
-import 'package:essentiel/user/user_data.dart';
 import 'package:flutter/material.dart';
 // import 'package:flutter_app_backend/pages/article_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';

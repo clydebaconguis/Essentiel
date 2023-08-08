@@ -80,7 +80,6 @@ class User {
     var sectionid = json['sectionid'] ?? 0;
     var userid = json['userid'] ?? 0;
     var sid = json['sid'] ?? '';
-    var lrn = json['lrn'] ?? '';
     var firstname = json['firstname'] ?? '';
     var middlename = json['middlename'] ?? '';
     var lastname = json['lastname'] ?? '';
@@ -94,10 +93,7 @@ class User {
     var fathername = json['fathername'] ?? 'Not specified';
     var foccupation = json['foccupation'] ?? 'Not specified';
     var fcontactno = json['fcontactno'] ?? 'Not specified';
-    var fcontactinfo = json['fcontactinfo'] ?? 'Not specified';
-    var gcontactinfo = json['gcontactinfo'] ?? 'Not specified';
     var gcontactno = json['gcontactno'] ?? 'Not specified';
-    var goccupation = json['goccupation'] ?? 'Not specified';
     var guardianname = json['guardianname'] ?? 'Not specified';
 
     var picurl = json['picurl'] ?? '';

@@ -1,11 +1,7 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:essentiel/auth/auth_page.dart';
-import 'package:essentiel/pages/home.dart';
-import 'package:essentiel/signup_login/sign_in.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:page_transition/page_transition.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(const MyHomePage());
@@ -36,9 +32,8 @@ class _MyHomePageState extends State<MyHomePage> {
             duration: 2000,
             centered: true,
             splash: 'images/spctLogo.jpg',
-            nextScreen: AuthPage(),
+            nextScreen: const AuthPage(),
             splashTransition: SplashTransition.sizeTransition,
-            pageTransitionType: PageTransitionType.leftToRight,
             backgroundColor: Colors.white));
   }
 }

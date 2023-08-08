@@ -273,7 +273,7 @@ class _ReportCardState extends State<ReportCard> {
                               const Spacer(),
                               selectedSem.isNotEmpty
                                   ? DropdownButton<String>(
-                                      value: selectedSem ?? '',
+                                      value: selectedSem,
                                       hint: const Text('Select Sem'),
                                       onChanged: (String? newValue) {
                                         setState(() {
@@ -476,11 +476,11 @@ class Grades {
 
   factory Grades.fromJson(Map json) {
     var subjcode = json['subjcode'] ?? '';
-    var q1 = json['q1'].toString() ?? '';
-    var q2 = json['q2'].toString() ?? '';
-    var q3 = json['q3'].toString() ?? '';
-    var q4 = json['q4'].toString() ?? '';
-    var finalrating = json['finalrating'].toString() ?? '';
+    var q1 = json['q1'].toString();
+    var q2 = json['q2'].toString();
+    var q3 = json['q3'].toString();
+    var q4 = json['q4'].toString();
+    var finalrating = json['finalrating'].toString();
     var actiontaken = json['actiontaken'] ?? '';
     return Grades(
         subjcode: subjcode,
@@ -494,11 +494,11 @@ class Grades {
 
   factory Grades.parseAverage(Map json) {
     var subjcode = json['subjdesc'] ?? '';
-    var q1 = json['q1'].toString() ?? '';
-    var q2 = json['q2'].toString() ?? '';
-    var q3 = json['q3'].toString() ?? '';
-    var q4 = json['q4'].toString() ?? '';
-    var finalrating = json['finalrating'].toString() ?? '';
+    var q1 = json['q1'].toString();
+    var q2 = json['q2'].toString();
+    var q3 = json['q3'].toString();
+    var q4 = json['q4'].toString();
+    var finalrating = json['finalrating'].toString();
     var actiontaken = json['actiontaken'] ?? '';
     return Grades(
         subjcode: subjcode,

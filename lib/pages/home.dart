@@ -1,4 +1,3 @@
-import 'package:essentiel/pages/class_schedule.dart';
 import 'package:essentiel/provider/navigation_provider.dart';
 import 'package:essentiel/widget/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
