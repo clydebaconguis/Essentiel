@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:essentiel/pages/billing_information.dart';
 import 'package:essentiel/pages/class_schedule.dart';
 import 'package:essentiel/pages/school_calendar.dart';
 import 'package:essentiel/provider/navigation_provider.dart';

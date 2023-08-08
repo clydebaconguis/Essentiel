@@ -4,12 +4,10 @@ import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:essentiel/api/my_api.dart';
 import 'package:essentiel/data/drawer_items.dart';
-import 'package:essentiel/main.dart';
 import 'package:essentiel/models/drawer_item.dart';
 import 'package:essentiel/pages/attendance.dart';
 import 'package:essentiel/pages/billing_information.dart';
 import 'package:essentiel/pages/class_schedule.dart';
-import 'package:essentiel/pages/home.dart';
 import 'package:essentiel/pages/report_card.dart';
 import 'package:essentiel/pages/school_calendar.dart';
 import 'package:essentiel/pages/semester_information.dart';
@@ -96,172 +94,163 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     return SizedBox(
       width: isCollapsed ? MediaQuery.of(context).size.width * 0.2 : null,
       child: Drawer(
-        child: Container(
-          // decoration: const BoxDecoration(
-          //   gradient: LinearGradient(
-          //     colors: [Color(0xe88293f6), Color(0xf24c67fc)],
-          //     begin: Alignment.topRight,
-          //     end: Alignment.bottomLeft,
-          //   ),
-          // ),
-          child: SingleChildScrollView(
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height,
-              child: ListView(
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 0).add(safeArea),
-                    width: double.infinity,
-                    // color: Colors.white12,
-                    child: buildHeader(isCollapsed),
-                  ),
-                  const Divider(
-                      // color: Colors.black26,
-                      ),
-                  buildProfileCircle(isCollapsed),
-                  const SizedBox(height: 20),
-                  const Divider(
-                    color: Colors.black26,
-                  ),
-                  const SizedBox(height: 20),
-                  buildList(items: itemsFirst, isCollapsed: isCollapsed),
-                  ListTile(
-                    title: !isCollapsed
-                        ? ExpansionTile(
-                            backgroundColor: Colors.transparent,
-                            iconColor: Colors.black,
-                            collapsedIconColor: Colors.black,
-                            title: Text(
-                              'See more',
-                              style: GoogleFonts.prompt(
-                                  color: Colors.black, fontSize: 16),
-                            ),
-                            children: itemFirstContinuation
-                                .asMap()
-                                .entries
-                                .map((entry) {
-                              final index = entry.key;
-                              final item = entry.value;
-                              return ListTile(
-                                tileColor: selectedNav == item.title
-                                    ? spctColor
-                                    : Colors.transparent,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.all(
-                                    Radius.circular(5),
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.only(left: 20),
-                                leading: Icon(
-                                  item.icon,
-                                  color: selectedNav == item.title
-                                      ? Colors.white
-                                      : Colors.black87,
-                                ),
-                                title: Text(
-                                  item.title,
-                                  style: GoogleFonts.prompt(
-                                      color: selectedNav == item.title
-                                          ? Colors.white
-                                          : Colors.black87,
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600),
-                                ),
-                                onTap: () {
-                                  selectItem2(context, index);
-                                  setState(() {
-                                    selectedNav =
-                                        item.title; // Update the selected index
-                                    final provider =
-                                        Provider.of<NavigationProvider>(context,
-                                            listen: false);
-                                    provider.setActiveNav(item.title);
-                                  });
-                                },
-                                selected: selectedNav == item.title,
-                                selectedTileColor: spctColor,
-                                focusColor:
-                                    spctColor, // Added this line to set focus color
-                                hoverColor:
-                                    spctColor, // Added this line to set hover color
-                              );
-                            }).toList(),
-                          )
-                        : null,
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(
-                    color: Colors.black26,
-                  ),
-                  buildLogout(items: itemsFirst2, isCollapsed: isCollapsed),
-                  const SizedBox(height: 20),
-                  !isCollapsed
-                      ? Center(
-                          child: Container(
-                            alignment: Alignment.center,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.copyright_outlined,
-                                  color: Colors.black45,
-                                  size: 18.0,
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                const Text(
-                                  'Copyright 2023',
-                                  style: TextStyle(
-                                      color: Colors.black45, fontSize: 12),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(
-                                  width: 10,
-                                ),
-                                const Text(
-                                  'Powered by',
-                                  style: TextStyle(
-                                      color: Colors.black45, fontSize: 12),
-                                  textAlign: TextAlign.center,
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                CircleAvatar(
-                                  radius: 15,
-                                  backgroundColor: Colors.transparent,
-                                  child: Image.asset(
-                                    "images/cklogo.png",
-                                    height: 25,
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                buildCollapseIcon(context, isCollapsed),
-                              ],
-                            ),
-                          ),
-                        )
-                      : CircleAvatar(
-                          radius: 15,
+        child: SingleChildScrollView(
+          child: SizedBox(
+            height: MediaQuery.of(context).size.height,
+            child: ListView(
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 0).add(safeArea),
+                  width: double.infinity,
+                  // color: Colors.white12,
+                  child: buildHeader(isCollapsed),
+                ),
+                const Divider(
+                    // color: Colors.black26,
+                    ),
+                buildProfileCircle(isCollapsed),
+                const SizedBox(height: 20),
+                const Divider(
+                  color: Colors.black26,
+                ),
+                const SizedBox(height: 20),
+                buildList(items: itemsFirst, isCollapsed: isCollapsed),
+                ListTile(
+                  title: !isCollapsed
+                      ? ExpansionTile(
                           backgroundColor: Colors.transparent,
-                          child: Image.asset(
-                            "images/cklogo.png",
-                            height: 25,
+                          iconColor: Colors.black,
+                          collapsedIconColor: Colors.black,
+                          title: Text(
+                            'See more',
+                            style: GoogleFonts.prompt(
+                                color: Colors.black, fontSize: 16),
+                          ),
+                          children: itemFirstContinuation
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                            final index = entry.key;
+                            final item = entry.value;
+                            return ListTile(
+                              tileColor: selectedNav == item.title
+                                  ? spctColor
+                                  : Colors.transparent,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(5),
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.only(left: 20),
+                              leading: Icon(
+                                item.icon,
+                                color: selectedNav == item.title
+                                    ? Colors.white
+                                    : Colors.black87,
+                              ),
+                              title: Text(
+                                item.title,
+                                style: GoogleFonts.prompt(
+                                    color: selectedNav == item.title
+                                        ? Colors.white
+                                        : Colors.black87,
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                              onTap: () {
+                                selectItem2(context, index);
+                                setState(() {
+                                  selectedNav =
+                                      item.title; // Update the selected index
+                                  final provider =
+                                      Provider.of<NavigationProvider>(context,
+                                          listen: false);
+                                  provider.setActiveNav(item.title);
+                                });
+                              },
+                              selected: selectedNav == item.title,
+                              selectedTileColor: spctColor,
+                              focusColor:
+                                  spctColor, // Added this line to set focus color
+                              hoverColor:
+                                  spctColor, // Added this line to set hover color
+                            );
+                          }).toList(),
+                        )
+                      : null,
+                ),
+                const SizedBox(height: 20),
+                const Divider(
+                  color: Colors.black26,
+                ),
+                buildLogout(items: itemsFirst2, isCollapsed: isCollapsed),
+                const SizedBox(height: 20),
+                !isCollapsed
+                    ? Center(
+                        child: Container(
+                          alignment: Alignment.center,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              const Icon(
+                                Icons.copyright_outlined,
+                                color: Colors.black45,
+                                size: 18.0,
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              const Text(
+                                'Copyright 2023',
+                                style: TextStyle(
+                                    color: Colors.black45, fontSize: 12),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              const Text(
+                                'Powered by',
+                                style: TextStyle(
+                                    color: Colors.black45, fontSize: 12),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              CircleAvatar(
+                                radius: 15,
+                                backgroundColor: Colors.transparent,
+                                child: Image.asset(
+                                  "images/cklogo.png",
+                                  height: 25,
+                                ),
+                              ),
+                              const SizedBox(
+                                width: 8,
+                              ),
+                              buildCollapseIcon(context, isCollapsed),
+                            ],
                           ),
                         ),
-                  isCollapsed
-                      ? buildCollapseIcon(context, isCollapsed)
-                      : const SizedBox(height: 0),
-                  const SizedBox(height: 50),
+                      )
+                    : CircleAvatar(
+                        radius: 15,
+                        backgroundColor: Colors.transparent,
+                        child: Image.asset(
+                          "images/cklogo.png",
+                          height: 25,
+                        ),
+                      ),
+                isCollapsed
+                    ? buildCollapseIcon(context, isCollapsed)
+                    : const SizedBox(height: 0),
+                const SizedBox(height: 50),
 
-                  // buildCollapseIcon(context, isCollapsed),
-                ],
-              ),
+                // buildCollapseIcon(context, isCollapsed),
+              ],
             ),
           ),
         ),

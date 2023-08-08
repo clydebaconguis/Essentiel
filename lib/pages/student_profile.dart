@@ -4,7 +4,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:essentiel/api/my_api.dart';
 import 'package:essentiel/user/user.dart';
 import 'package:essentiel/user/user_data.dart';
-import 'package:essentiel/widget/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -269,18 +268,18 @@ class _StudentProfileState extends State<StudentProfile> {
                               ),
                               const SizedBox(height: 8.0),
                               ListTile(
-                                leading: Icon(Icons.person),
-                                title: Text('Full Name'),
+                                leading: const Icon(Icons.person),
+                                title: const Text('Full Name'),
                                 subtitle: Text(user.guardianname),
                               ),
                               ListTile(
-                                leading: Icon(Icons.people),
-                                title: Text('Relationship'),
+                                leading: const Icon(Icons.people),
+                                title: const Text('Relationship'),
                                 subtitle: Text(user.guardianname),
                               ),
                               ListTile(
-                                leading: Icon(Icons.phone),
-                                title: Text('Contact Number'),
+                                leading: const Icon(Icons.phone),
+                                title: const Text('Contact Number'),
                                 subtitle: Text(user.gcontactno),
                               ),
                             ],
