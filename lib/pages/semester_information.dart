@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:essentiel/user/user_data.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/my_api.dart';
@@ -19,7 +20,8 @@ class _SemesterInformationState extends State<SemesterInformation> {
   User user = UserData.myUser;
   String selectedYear = '';
   List<String> years = [];
-  var syid = 0;
+  var syid = 1;
+  var semid = 1;
   var levelid = 0;
   var sydesc = '';
   var levelname = '';
@@ -27,7 +29,10 @@ class _SemesterInformationState extends State<SemesterInformation> {
   var strand = 'Tech Voc';
   var adviser = 'Pitok Batolata';
   var id = '0';
+  String selectedSem = '';
+  List<String> semesters = [];
   List<EnrollmentInfo> enInfoData = [];
+
   EnrollmentInfo? selectedEnrollment = EnrollmentInfo(
     sydesc: '',
     levelname: '',
@@ -39,6 +44,8 @@ class _SemesterInformationState extends State<SemesterInformation> {
     sectionid: 0,
     isactive: 0,
     strandid: 0,
+    semester: '',
+    strandcode: '',
   );
 
   @override
@@ -54,6 +61,7 @@ class _SemesterInformationState extends State<SemesterInformation> {
     if (json != null) {
       setState(() {
         user = User.fromJson(jsonDecode(json) as Map);
+        levelid = user.levelid;
       });
       getEnrollment();
     }
@@ -70,21 +78,26 @@ class _SemesterInformationState extends State<SemesterInformation> {
 
         for (var element in enInfoData) {
           years.add(element.sydesc);
-          selectedYear = element.sydesc;
+          semesters.add(element.semester);
         }
         Set<String> uniqueSet = years.toSet();
         years = uniqueSet.toList();
-        for (var yr in enInfoData) {
-          if (yr.sydesc == selectedYear) {
-            print("has match");
-            syid = yr.syid;
-            levelid = yr.levelid;
-            sydesc = yr.sydesc;
-            levelname = yr.levelname;
-            sectionname = yr.sectionname;
-            selectedEnrollment = getSelectedEnrollmentInfo();
-          }
-        }
+        selectedYear = enInfoData[enInfoData.length - 1].sydesc;
+        selectedSem = semesters[0];
+        selectedEnrollment = getSelectedEnrollmentInfo();
+        // for (var yr in enInfoData) {
+        //   if (yr.sydesc == selectedYear &&
+        //       yr.semid == semid &&
+        //       yr.syid == syid) {
+        //     print("has match");
+        //     syid = yr.syid;
+        //     levelid = yr.levelid;
+        //     sydesc = yr.sydesc;
+        //     levelname = yr.levelname;
+        //     sectionname = yr.sectionname;
+
+        //   }
+        // }
       });
     });
   }
@@ -93,7 +106,10 @@ class _SemesterInformationState extends State<SemesterInformation> {
     if (selectedYear.isEmpty) return null;
     // Retrieve the enrollment info based on the selected year
     return enInfoData.firstWhere(
-      (enrollment) => enrollment.sydesc == selectedYear,
+      (enrollment) =>
+          enrollment.sydesc == selectedYear &&
+          enrollment.semid == semid &&
+          enrollment.syid == syid,
       orElse: () => EnrollmentInfo(
           sydesc: '',
           levelname: '',
@@ -104,7 +120,9 @@ class _SemesterInformationState extends State<SemesterInformation> {
           levelid: 0,
           sectionid: 0,
           isactive: 0,
-          strandid: 0),
+          strandid: 0,
+          semester: '',
+          strandcode: ''),
     );
   }
 
@@ -112,12 +130,12 @@ class _SemesterInformationState extends State<SemesterInformation> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 10),
+        margin: const EdgeInsets.symmetric(vertical: 0),
         elevation: 0,
         child: Padding(
-          padding: const EdgeInsets.all(0),
+          padding: const EdgeInsets.only(left: 10, right: 10),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Card(
                 shape: RoundedRectangleBorder(
@@ -139,14 +157,14 @@ class _SemesterInformationState extends State<SemesterInformation> {
                           ),
                           child: Row(
                             children: [
-                              const Row(
+                              Row(
                                 children: [
-                                  Icon(Icons.filter_alt_outlined,
+                                  const Icon(Icons.filter_alt_outlined,
                                       color: Colors.white),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   Text(
                                     'School Year',
-                                    style: TextStyle(
+                                    style: GoogleFonts.prompt(
                                       fontSize: 19,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
@@ -205,6 +223,99 @@ class _SemesterInformationState extends State<SemesterInformation> {
                   ),
                 ),
               ),
+              if (levelid == 14 || levelid == 15 || levelid >= 17)
+                Card(
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0)),
+                  elevation: 4,
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                        left: 0, right: 0, top: 0, bottom: 0),
+                    child: SizedBox(
+                      child: Column(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 2.0, horizontal: 10.0),
+                            decoration: BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(5)),
+                              color: Colors.blue[
+                                  400], // Replace with your desired tinted color
+                            ),
+                            child: Row(
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.filter_alt_outlined,
+                                        color: Colors.white),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      'Semester',
+                                      style: GoogleFonts.prompt(
+                                        fontSize: 19,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const Spacer(),
+                                selectedSem.isNotEmpty
+                                    ? DropdownButton<String>(
+                                        value: selectedSem,
+                                        hint: const Text('Select Sem'),
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectedSem = newValue!;
+                                            for (var each in enInfoData) {
+                                              if (each.semester == newValue) {
+                                                syid = each.syid;
+                                                semid = each.semid;
+                                                print("$syid $semid");
+                                                selectedEnrollment =
+                                                    getSelectedEnrollmentInfo();
+                                                break;
+                                              }
+                                            }
+                                          });
+                                        },
+                                        items: semesters
+                                            .map<DropdownMenuItem<String>>(
+                                          (String semes) {
+                                            return DropdownMenuItem<String>(
+                                              value: semes,
+                                              child: Text(
+                                                semes.toString(),
+                                                style: const TextStyle(
+                                                  fontSize: 18,
+                                                  fontStyle: FontStyle.italic,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: Colors
+                                                      .white, // Replace with your desired text color
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        ).toList(),
+                                        style: const TextStyle(
+                                          color: Colors
+                                              .white, // Replace with your desired text color
+                                        ),
+                                        underline:
+                                            Container(), // To hide the underline
+                                        dropdownColor: Colors.blue[
+                                            300], // Replace with your desired dropdown background color
+                                      )
+                                    : const CircularProgressIndicator(),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               const SizedBox(height: 20),
               Text(
                 selectedEnrollment!.levelname,
@@ -290,6 +401,18 @@ class _SemesterInformationState extends State<SemesterInformation> {
               const Divider(),
               Row(
                 children: [
+                  const Expanded(child: Text('Semester:')),
+                  const Spacer(),
+                  Expanded(
+                      child: Text(
+                    selectedEnrollment!.semester,
+                    textAlign: TextAlign.right,
+                  )),
+                ],
+              ),
+              const Divider(),
+              Row(
+                children: [
                   const Expanded(child: Text('Section:')),
                   const Spacer(),
                   Expanded(
@@ -302,15 +425,18 @@ class _SemesterInformationState extends State<SemesterInformation> {
               const Divider(),
               (selectedEnrollment!.levelid == 14 ||
                       selectedEnrollment!.levelid == 15)
-                  ? const Row(
+                  ? Row(
                       children: [
-                        Expanded(child: Text('Strand:')),
-                        Spacer(),
+                        const Expanded(
+                          child: Text('Strand:'),
+                        ),
+                        const Spacer(),
                         Expanded(
-                            child: Text(
-                          '',
-                          textAlign: TextAlign.right,
-                        )),
+                          child: Text(
+                            selectedEnrollment!.strandcode,
+                            textAlign: TextAlign.right,
+                          ),
+                        ),
                       ],
                     )
                   : const SizedBox(

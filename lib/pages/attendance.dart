@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:flutter/material.dart';
@@ -94,7 +95,7 @@ class _AttendanceState extends State<Attendance> {
             isPresent: data['present'],
             subject: data['attday'],
             startTime: dateTime,
-            endTime: dateTime.add(Duration(days: 1)),
+            endTime: dateTime.add(const Duration(days: 1)),
             color: Colors.blue,
             // Customize the event color as per your preference
           );
@@ -129,14 +130,14 @@ class _AttendanceState extends State<Attendance> {
                         ),
                         child: Row(
                           children: [
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.filter_alt_outlined,
+                                const Icon(Icons.filter_alt_outlined,
                                     color: Colors.white),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Text(
                                   'School Year',
-                                  style: TextStyle(
+                                  style: GoogleFonts.prompt(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,

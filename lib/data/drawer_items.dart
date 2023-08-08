@@ -10,7 +10,7 @@ final itemsFirst = [
       icon: Icons.library_books_outlined,
       isEnabled: false),
   DrawerItem(
-      title: 'Class Schedule', icon: Icons.class_outlined, isEnabled: false),
+      title: 'Class Schedule', icon: Icons.schedule_outlined, isEnabled: false),
 ];
 final itemFirstContinuation = [
   DrawerItem(

@@ -83,6 +83,18 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
+  fonts:
+      - family: Prompt
+        fonts:
+          - asset: fonts/Prompt-Regular.ttf
+          - asset: fonts/Prompt-Black.ttf
+          - asset: fonts/Prompt-Bold.ttf
+          - asset: fonts/Prompt-ExtraBold.ttf
+          - asset: fonts/Prompt-ExtraLight.ttf
+          - asset: fonts/Prompt-Light.ttf
+          - asset: fonts/Prompt-Medium.ttf
+          - asset: fonts/Prompt-SemiBold.ttf
+          - asset: fonts/Prompt-Thin.ttf
   # fonts:
   #   - family: Schyler
   #     fonts:

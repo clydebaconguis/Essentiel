@@ -4,6 +4,7 @@ import 'package:essentiel/components/text_widget.dart';
 import 'package:essentiel/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignIn extends StatefulWidget {
@@ -19,6 +20,7 @@ const snackBar2 = SnackBar(
 
 class _SignInState extends State<SignIn> {
   var color = Colors.black;
+  var spctColor = const Color.fromARGB(255, 7, 5, 102);
 
   var loggedIn = false;
   // late bool _isLoading = false;
@@ -111,11 +113,20 @@ class _SignInState extends State<SignIn> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      TextWidget(
-                          color: color,
-                          text: "Sign in",
-                          fontSize: 22,
-                          isUnderLine: false),
+                      // TextWidget(
+                      //     color: color,
+                      //     text: "Sign in",
+                      //     fontSize: 22,
+                      //     isUnderLine: false),
+                      Text(
+                        'Sign in',
+                        style: GoogleFonts.prompt(
+                          textStyle: TextStyle(
+                              color: spctColor,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 26),
+                        ),
+                      ),
                       GestureDetector(
                         onTap: () {
                           if (textController.text.isEmpty ||
@@ -131,9 +142,9 @@ class _SignInState extends State<SignIn> {
                         child: Container(
                           height: 60,
                           width: 60,
-                          decoration: const BoxDecoration(
+                          decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Color(0xff3f4fb2),
+                            color: spctColor,
                           ),
                           child: const Icon(Icons.arrow_forward,
                               color: Colors.white, size: 30),
@@ -159,7 +170,7 @@ class _SignInState extends State<SignIn> {
                               'Sign up is temporarily unavailable!');
                         },
                         child: TextWidget(
-                          color: color,
+                          color: spctColor,
                           text: "Sign up",
                           fontSize: 16,
                           isUnderLine: true,
@@ -171,7 +182,7 @@ class _SignInState extends State<SignIn> {
                               'Pls inform the authority or your teacher if you forgot your credentials!');
                         },
                         child: TextWidget(
-                          color: color,
+                          color: spctColor,
                           text: "Forgot Password",
                           fontSize: 16,
                           isUnderLine: true,
@@ -210,24 +221,25 @@ class TextInput extends StatefulWidget {
 
 class _TextInputState extends State<TextInput> {
   bool showPassword = false;
-
+  var spctColor = const Color.fromARGB(255, 7, 5, 102);
+  var spctColor2 = const Color.fromARGB(255, 7, 5, 191);
   @override
   Widget build(BuildContext context) {
     return TextField(
       style: const TextStyle(color: Color(0xFF000000)),
-      cursorColor: const Color(0xFF9b9b9b),
+      cursorColor: spctColor,
       controller: widget.textController,
       keyboardType: TextInputType.text,
       obscureText: widget.obscureText && !showPassword,
       decoration: InputDecoration(
-        enabledBorder: const UnderlineInputBorder(
+        enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-            color: Colors.black,
+            color: spctColor2,
           ),
         ),
-        focusedBorder: const UnderlineInputBorder(
+        focusedBorder: UnderlineInputBorder(
           borderSide: BorderSide(
-            color: Colors.black,
+            color: spctColor,
           ),
         ),
         hintText: widget.textString,

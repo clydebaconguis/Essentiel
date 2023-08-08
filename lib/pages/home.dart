@@ -1,3 +1,4 @@
+import 'package:essentiel/pages/class_schedule.dart';
 import 'package:essentiel/provider/navigation_provider.dart';
 import 'package:essentiel/widget/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
@@ -74,6 +75,8 @@ class EnrollmentInfo {
   final String dateenrolled;
   final int isactive;
   final int strandid;
+  final String semester;
+  final String strandcode;
 
   EnrollmentInfo({
     required this.levelid,
@@ -86,6 +89,8 @@ class EnrollmentInfo {
     required this.dateenrolled,
     required this.isactive,
     required this.strandid,
+    required this.semester,
+    required this.strandcode,
   });
 
   factory EnrollmentInfo.fromJson(Map json) {
@@ -99,6 +104,8 @@ class EnrollmentInfo {
     var dateenrolled = json['dateenrolled'] ?? '';
     var isactive = json['isactive'] ?? 0;
     var strandid = json['strandid'] ?? 0;
+    var semester = json['semester'] ?? '';
+    var strandcode = json['strandcode'] ?? '';
     return EnrollmentInfo(
       syid: syid,
       sydesc: sydesc,
@@ -110,12 +117,15 @@ class EnrollmentInfo {
       sectionid: sectionid,
       isactive: isactive,
       strandid: strandid,
+      semester: semester,
+      strandcode: strandcode,
     );
   }
 }
 
 class _HomepageState extends State<Homepage> {
-  Widget currentPage = const Dash();
+  // Widget currentPage = const Dash(updateData: (const ClassSchedPage(),""));
+  late Widget currentPage;
   String pageName = 'Dashboard';
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
@@ -123,7 +133,7 @@ class _HomepageState extends State<Homepage> {
     _scaffoldKey.currentState?.openDrawer();
   }
 
-  void updateData(Widget page, String pName) {
+  updateData(Widget page, String pName) {
     setState(() {
       currentPage = page;
       pageName = pName;
@@ -131,7 +141,16 @@ class _HomepageState extends State<Homepage> {
   }
 
   @override
+  void initState() {
+    currentPage = Dash(
+      updateData: updateData,
+    );
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    var spctColor = const Color.fromARGB(255, 7, 5, 102);
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -163,9 +182,9 @@ class _HomepageState extends State<Homepage> {
                 Expanded(
                   child: Text(
                     pageName,
-                    style: GoogleFonts.poppins(
+                    style: GoogleFonts.prompt(
                       fontSize: 22,
-                      color: Colors.indigo[900],
+                      color: spctColor,
                       fontWeight: FontWeight.bold,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -177,8 +196,15 @@ class _HomepageState extends State<Homepage> {
           ),
         ),
         body: Padding(
-          padding: EdgeInsets.only(top: 20, right: 5, left: 5),
-          child: currentPage,
+          padding: const EdgeInsets.only(top: 20, right: 5, left: 5),
+          child: currentPage ==
+                  Dash(
+                    updateData: updateData,
+                  )
+              ? Dash(
+                  updateData: updateData,
+                )
+              : currentPage,
         ),
       ),
     );

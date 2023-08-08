@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:essentiel/widget/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/my_api.dart';
@@ -164,14 +164,14 @@ class _ReportCardState extends State<ReportCard> {
                         ),
                         child: Row(
                           children: [
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.filter_alt_outlined,
+                                const Icon(Icons.filter_alt_outlined,
                                     color: Colors.white),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Text(
                                   'School Year',
-                                  style: TextStyle(
+                                  style: GoogleFonts.prompt(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -255,14 +255,14 @@ class _ReportCardState extends State<ReportCard> {
                           ),
                           child: Row(
                             children: [
-                              const Row(
+                              Row(
                                 children: [
-                                  Icon(Icons.filter_alt_outlined,
+                                  const Icon(Icons.filter_alt_outlined,
                                       color: Colors.white),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   Text(
                                     'Semester',
-                                    style: TextStyle(
+                                    style: GoogleFonts.prompt(
                                       fontSize: 19,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,

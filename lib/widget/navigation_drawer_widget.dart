@@ -40,6 +40,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
   final padding = const EdgeInsets.symmetric(horizontal: 20);
   User user = UserData.myUser;
   bool isValid = false;
+  var spctColor = const Color.fromARGB(255, 7, 5, 102);
   @override
   void initState() {
     getUser();
@@ -112,12 +113,12 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     padding:
                         const EdgeInsets.symmetric(vertical: 0).add(safeArea),
                     width: double.infinity,
-                    color: Colors.white12,
+                    // color: Colors.white12,
                     child: buildHeader(isCollapsed),
                   ),
                   const Divider(
-                    color: Colors.black26,
-                  ),
+                      // color: Colors.black26,
+                      ),
                   buildProfileCircle(isCollapsed),
                   const SizedBox(height: 20),
                   const Divider(
@@ -131,10 +132,10 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                             backgroundColor: Colors.transparent,
                             iconColor: Colors.black,
                             collapsedIconColor: Colors.black,
-                            title: const Text(
+                            title: Text(
                               'See more',
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 16),
+                              style: GoogleFonts.prompt(
+                                  color: Colors.black, fontSize: 16),
                             ),
                             children: itemFirstContinuation
                                 .asMap()
@@ -144,7 +145,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                               final item = entry.value;
                               return ListTile(
                                 tileColor: selectedNav == item.title
-                                    ? Colors.blue[800]
+                                    ? spctColor
                                     : Colors.transparent,
                                 shape: const RoundedRectangleBorder(
                                   borderRadius: BorderRadius.all(
@@ -156,16 +157,16 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                                   item.icon,
                                   color: selectedNav == item.title
                                       ? Colors.white
-                                      : Colors.black,
+                                      : Colors.black87,
                                 ),
                                 title: Text(
                                   item.title,
-                                  style: TextStyle(
-                                    color: selectedNav == item.title
-                                        ? Colors.white
-                                        : Colors.black,
-                                    fontSize: 16,
-                                  ),
+                                  style: GoogleFonts.prompt(
+                                      color: selectedNav == item.title
+                                          ? Colors.white
+                                          : Colors.black87,
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.w600),
                                 ),
                                 onTap: () {
                                   selectItem2(context, index);
@@ -179,11 +180,11 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                                   });
                                 },
                                 selected: selectedNav == item.title,
-                                selectedTileColor: Colors.blue[800],
-                                focusColor: Colors.blue[
-                                    800], // Added this line to set focus color
-                                hoverColor: Colors.blue[
-                                    800], // Added this line to set hover color
+                                selectedTileColor: spctColor,
+                                focusColor:
+                                    spctColor, // Added this line to set focus color
+                                hoverColor:
+                                    spctColor, // Added this line to set hover color
                               );
                             }).toList(),
                           )
@@ -355,7 +356,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
 
     switch (index) {
       case 0:
-        widget.updateData(const Dash(), "Dashboard");
+        widget.updateData(Dash(updateData: widget.updateData), "Dashboard");
         // navigateTo(const Home());
         break;
       case 1:
@@ -386,22 +387,23 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(5))),
               selected: selectedNav.toLowerCase() == text.toLowerCase(),
-              selectedTileColor: Colors.blue[800],
+              selectedTileColor: spctColor,
               title: Icon(icon,
-                  color: selectedNav == text ? Colors.white : Colors.black),
+                  color: selectedNav == text ? Colors.white : Colors.black87),
             )
           : ListTile(
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(5))),
               selected: selectedNav == text,
-              selectedTileColor: Colors.blue[800],
+              selectedTileColor: spctColor,
               leading: Icon(icon,
-                  color: selectedNav == text ? Colors.white : Colors.black),
+                  color: selectedNav == text ? Colors.white : Colors.black87),
               title: Text(
                 text,
-                style: TextStyle(
-                  color: selectedNav == text ? Colors.white : Colors.black,
-                  fontSize: 16,
+                style: GoogleFonts.prompt(
+                  fontWeight: FontWeight.w600,
+                  color: selectedNav == text ? Colors.white : Colors.black87,
+                  fontSize: 17,
                 ),
               ),
               onTap: onClicked,
@@ -463,12 +465,12 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                 height: 50,
                 image: AssetImage("images/spctLogo.jpg"),
               ),
-              SizedBox(width: 16),
+              const SizedBox(width: 16),
               Text(
                 'SPCT',
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.prompt(
                   fontSize: 25,
-                  color: Colors.indigo[900],
+                  color: spctColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -552,9 +554,9 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                 // user.name.toUpperCase(),
                 '${user.firstname} ${user.middlename} ${user.lastname} ${user.suffix}'
                     .toUpperCase(),
-                style: GoogleFonts.poppins(
+                style: GoogleFonts.prompt(
                   fontSize: 20,
-                  color: Colors.blue[900],
+                  color: spctColor,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -568,7 +570,6 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               style: const TextStyle(
                 fontWeight: FontWeight.w900,
                 color: Colors.black87,
-                fontStyle: FontStyle.italic,
               ),
             ),
         ],

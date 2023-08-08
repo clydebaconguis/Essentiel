@@ -6,6 +6,7 @@ import 'package:essentiel/user/user.dart';
 import 'package:essentiel/user/user_data.dart';
 import 'package:essentiel/widget/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -102,8 +103,8 @@ class _StudentProfileState extends State<StudentProfile> {
                               const SizedBox(height: 16.0),
                               Text(
                                 '${user.firstname} ${user.middlename} ${user.lastname}',
-                                style: const TextStyle(
-                                  fontSize: 24.0,
+                                style: GoogleFonts.prompt(
+                                  fontSize: 22.0,
                                   fontWeight: FontWeight.bold,
                                 ),
                                 textAlign: TextAlign.center,

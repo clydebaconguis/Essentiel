@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -53,7 +54,7 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
         startTime: appointment.startTime,
         endTime: appointment.endTime,
         enablePointerInteraction: false,
-        textStyle: TextStyle(color: Colors.white),
+        textStyle: const TextStyle(color: Colors.white),
         color: Colors.blue, // Customize the event color as desired
       ));
     }
@@ -145,14 +146,14 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
                       ),
                       child: Row(
                         children: [
-                          const Row(
+                          Row(
                             children: [
-                              Icon(Icons.filter_alt_outlined,
+                              const Icon(Icons.filter_alt_outlined,
                                   color: Colors.white),
-                              SizedBox(width: 10),
+                              const SizedBox(width: 10),
                               Text(
                                 'School Year',
-                                style: TextStyle(
+                                style: GoogleFonts.prompt(
                                   fontSize: 19,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
@@ -297,7 +298,7 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
         child: Center(
           child: Text(
             details.appointments.first.subject,
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       );
@@ -310,7 +311,7 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
         child: Center(
           child: Text(
             '+${details.appointments.length}',
-            style: TextStyle(color: Colors.white),
+            style: const TextStyle(color: Colors.white),
           ),
         ),
       );

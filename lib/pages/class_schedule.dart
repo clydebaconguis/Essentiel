@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:essentiel/user/user_data.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/my_api.dart';
@@ -28,8 +29,8 @@ class ClassSchedPage extends StatefulWidget {
 class _ClassSchedPageState extends State<ClassSchedPage> {
   User user = UserData.myUser;
   String id = '0';
-  String selectedSem = '1st Sem';
-  List<String> sem = ['1st Sem', '2nd Sem'];
+  String selectedSem = '';
+  List<String> semesters = [];
   int syid = 0;
   int sectionid = 0;
   int levelid = 0;
@@ -52,6 +53,7 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
     }
     // Retrieve the assessment info based on the selected year
     else {
+      print("displaying new sched");
       listOfItem3.clear();
       for (var element in listOfItem2) {
         if (element.month.contains(selectedMonth)) {
@@ -153,10 +155,13 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
 
         for (var element in enInfoData) {
           years.add(element.sydesc);
+          semesters.add(element.semester);
+          print(element.semester);
         }
         Set<String> uniqueSet = years.toSet();
         years = uniqueSet.toList();
         selectedYear = enInfoData[enInfoData.length - 1].sydesc;
+        selectedSem = semesters[0];
         for (var yr in enInfoData) {
           if (yr.sydesc == selectedYear) {
             print("has match");
@@ -202,6 +207,8 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
         sectionid: 0,
         isactive: 0,
         strandid: 0,
+        semester: '',
+        strandcode: '',
       ),
     );
   }
@@ -214,7 +221,6 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
 
   @override
   Widget build(BuildContext context) {
-    EnrollmentInfo? selectedEnrollment = getSelectedEnrollmentInfo();
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -244,14 +250,14 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                         ),
                         child: Row(
                           children: [
-                            const Row(
+                            Row(
                               children: [
-                                Icon(Icons.filter_alt_outlined,
+                                const Icon(Icons.filter_alt_outlined,
                                     color: Colors.white),
-                                SizedBox(width: 10),
+                                const SizedBox(width: 10),
                                 Text(
                                   'School Year',
-                                  style: TextStyle(
+                                  style: GoogleFonts.prompt(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
@@ -337,14 +343,14 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                           ),
                           child: Row(
                             children: [
-                              const Row(
+                              Row(
                                 children: [
-                                  Icon(Icons.filter_alt_outlined,
+                                  const Icon(Icons.filter_alt_outlined,
                                       color: Colors.white),
-                                  SizedBox(width: 10),
+                                  const SizedBox(width: 10),
                                   Text(
                                     'Semester',
-                                    style: TextStyle(
+                                    style: GoogleFonts.prompt(
                                       fontSize: 19,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
@@ -360,17 +366,39 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                                       onChanged: (String? newValue) {
                                         setState(() {
                                           selectedSem = newValue!;
-                                          var index =
-                                              sem.indexOf(selectedSem) + 1;
-                                          getStudSchedule(index);
+                                          for (var each in enInfoData) {
+                                            if (each.semester == newValue) {
+                                              print(
+                                                  "success in ${each.semester} == $newValue");
+
+                                              print("success semid ${user.id}");
+                                              semid = each.semid;
+                                              print(
+                                                  "success semid ${each.semid}");
+
+                                              syid = each.syid;
+                                              print(
+                                                  "success syid ${each.syid}");
+
+                                              sectionid = each.sectionid;
+                                              print(
+                                                  "success sectionid  ${each.sectionid}");
+                                              levelid = each.levelid;
+                                              print(
+                                                  "success levelid ${each.levelid}");
+                                              getStudSchedule(each.semid);
+                                              break;
+                                            }
+                                          }
                                         });
                                       },
-                                      items: sem.map<DropdownMenuItem<String>>(
+                                      items: semesters
+                                          .map<DropdownMenuItem<String>>(
                                         (String semes) {
                                           return DropdownMenuItem<String>(
                                             value: semes,
                                             child: Text(
-                                              semes,
+                                              semes.toString(),
                                               style: const TextStyle(
                                                 fontSize: 18,
                                                 fontStyle: FontStyle.italic,
@@ -423,9 +451,9 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                           const Icon(Icons.filter_alt_outlined,
                               color: Colors.white),
                           const SizedBox(width: 10),
-                          const Text(
+                          Text(
                             'Class Schedule',
-                            style: TextStyle(
+                            style: GoogleFonts.prompt(
                               fontSize: 19,
                               fontWeight: FontWeight.bold,
                               color: Colors.white,

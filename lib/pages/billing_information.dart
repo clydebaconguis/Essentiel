@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../api/my_api.dart';
@@ -62,13 +63,14 @@ class _BillingState extends State<Billing> {
                           ),
                           child: Row(
                             children: [
-                              const Row(
+                              Row(
                                 children: [
-                                  Icon(Icons.filter_list, color: Colors.white),
-                                  SizedBox(width: 10),
+                                  const Icon(Icons.filter_alt_outlined,
+                                      color: Colors.white),
+                                  const SizedBox(width: 10),
                                   Text(
                                     'School Year',
-                                    style: TextStyle(
+                                    style: GoogleFonts.prompt(
                                       fontSize: 19,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
