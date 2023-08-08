@@ -520,30 +520,30 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
           const SizedBox(height: 24),
           Stack(
             children: [
-              if (isValid)
-                CachedNetworkImage(
-                  imageUrl: "$host${user.picurl}",
-                  imageBuilder: (context, imageProvider) => CircleAvatar(
-                    radius: isCollapsed ? 30 : 40,
-                    backgroundImage: imageProvider,
-                  ),
-                  placeholder: (context, url) => Center(
-                    child: CircleAvatar(
-                      radius: isCollapsed ? 30 : 40,
-                      child: const CircularProgressIndicator(),
-                    ),
-                  ),
-                  errorWidget: (context, url, error) => CircleAvatar(
-                    backgroundColor: Colors.white,
-                    radius: isCollapsed ? 30 : 40,
-                    backgroundImage: const AssetImage("images/anonymous.jpg"),
-                  ),
-                ),
-              if (!isValid)
-                CircleAvatar(
+              // if (isValid)
+              CachedNetworkImage(
+                imageUrl: "$host${user.picurl}",
+                imageBuilder: (context, imageProvider) => CircleAvatar(
                   radius: isCollapsed ? 30 : 40,
-                  child: const CircularProgressIndicator(),
+                  backgroundImage: imageProvider,
                 ),
+                placeholder: (context, url) => Center(
+                  child: CircleAvatar(
+                    radius: isCollapsed ? 30 : 40,
+                    child: const CircularProgressIndicator(),
+                  ),
+                ),
+                errorWidget: (context, url, error) => CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: isCollapsed ? 30 : 40,
+                  backgroundImage: const AssetImage("images/anonymous.jpg"),
+                ),
+              ),
+              // if (!isValid)
+              //   CircleAvatar(
+              //     radius: isCollapsed ? 30 : 40,
+              //     child: const CircularProgressIndicator(),
+              //   ),
             ],
           ),
           const SizedBox(height: 20),

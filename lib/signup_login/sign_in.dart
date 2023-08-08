@@ -21,7 +21,6 @@ const snackBar2 = SnackBar(
 class _SignInState extends State<SignIn> {
   var color = Colors.black;
   var spctColor = const Color.fromARGB(255, 7, 5, 102);
-
   var loggedIn = false;
   // late bool _isLoading = false;
   TextEditingController textController = TextEditingController();
@@ -49,9 +48,9 @@ class _SignInState extends State<SignIn> {
     var res = await CallApi()
         .login(emailController.text.toString(), textController.text.toString());
     var body = json.decode(res.body);
-    print(body);
+    // print(body);
     var studInfo = body['stud']['id'];
-    print(studInfo);
+    // print(studInfo);
 
     if (studInfo > 0) {
       SharedPreferences localStorage = await SharedPreferences.getInstance();
@@ -64,6 +63,20 @@ class _SignInState extends State<SignIn> {
       EasyLoading.showError('Failed to Login');
       EasyLoading.dismiss();
     }
+  }
+
+  getSchoolInfo() async {
+    var res = await CallApi().getSchoolInfo();
+    var body = json.decode(res.body);
+    print(body);
+    // SharedPreferences localStorage = await SharedPreferences.getInstance();
+    //   localStorage.setString('user', json.encode(body['stud']));
+  }
+
+  @override
+  void initState() {
+    getSchoolInfo();
+    super.initState();
   }
 
   @override

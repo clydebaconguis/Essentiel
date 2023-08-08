@@ -14,6 +14,12 @@ class CallApi {
   final String _studGrade = "api/mobile/api_getgrade";
   final String _events = "/api/mobile/api_get_events";
   final String _attendance = "api/mobile/student_attendance";
+  final String _schoolinfo = "api/mobile/schoolinfo";
+
+  getSchoolInfo() async {
+    var fullUrl = '$_mainDomain$_schoolinfo';
+    return await http.get(Uri.parse(fullUrl), headers: _setHeaders());
+  }
 
   getAttendance(
     studid,
