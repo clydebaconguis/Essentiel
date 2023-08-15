@@ -2,7 +2,10 @@ import 'package:essentiel/models/drawer_item.dart';
 import 'package:flutter/material.dart';
 
 final itemsFirst = [
-  DrawerItem(title: 'Home', icon: Icons.home_rounded, isEnabled: false),
+  DrawerItem(
+      title: 'Dashboard',
+      icon: Icons.dashboard_customize_outlined,
+      isEnabled: false),
   DrawerItem(
       title: 'Attendance', icon: Icons.fact_check_outlined, isEnabled: false),
   DrawerItem(

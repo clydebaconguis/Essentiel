@@ -1,12 +1,10 @@
 import 'dart:convert';
-
+import 'package:essentiel/models/enrollment_info.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-
-import '../api/my_api.dart';
-import 'home.dart';
+import 'package:essentiel/api/my_api.dart';
 
 class SchoolCalendar extends StatefulWidget {
   const SchoolCalendar({super.key});
@@ -35,8 +33,8 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
 
   List<Appointment> _getAppointments() {
     return events.map((event) {
-      print("sdfksldjf");
-      print(event.id);
+      // print("sdfksldjf");
+      // print(event.id);
       return Appointment(
         startTime: event.startTime,
         endTime: event.endTime,
@@ -78,7 +76,7 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
     await CallApi().getEnrollmentInfo(id).then((response) {
       setState(() {
         Iterable list = jsonDecode(response.body);
-        print(list);
+        // print(list);
         enInfoData = list.map((model) {
           return EnrollmentInfo.fromJson(model);
         }).toList();
@@ -91,7 +89,7 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
         selectedYear = enInfoData[enInfoData.length - 1].sydesc;
         for (var yr in enInfoData) {
           if (yr.sydesc == selectedYear) {
-            print("has match");
+            // print("has match");
             syid = yr.syid;
             getEvents();
           }
@@ -105,7 +103,7 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
       setState(() {
         Iterable ll = jsonDecode(response.body);
         events = (ll as List<dynamic>).map((e) {
-          print(e['id']);
+          // print(e['id']);
           return Event(
             id: e['id'],
             title: e['title'],
@@ -122,137 +120,143 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          Card(
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0)),
-            elevation: 4,
-            child: Padding(
-              padding:
-                  const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-              child: SizedBox(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 2.0, horizontal: 10.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.indigo[
-                            800], // Replace with your desired tinted color
-                      ),
-                      child: Row(
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.filter_alt_outlined,
-                                  color: Colors.white),
-                              const SizedBox(width: 10),
-                              Text(
-                                'School Year',
-                                style: GoogleFonts.prompt(
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const Spacer(),
-                          selectedYear.isNotEmpty
-                              ? DropdownButton<String>(
-                                  value: selectedYear,
-                                  hint: const Text('Select Year'),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedYear = newValue!;
-                                      for (var yr in enInfoData) {
-                                        if (yr.sydesc == selectedYear) {
-                                          syid = yr.syid;
-                                          getEvents();
-                                        }
-                                      }
-                                    });
-                                  },
-                                  items: years.map<DropdownMenuItem<String>>(
-                                    (String year) {
-                                      return DropdownMenuItem<String>(
-                                        value: year,
-                                        child: Text(
-                                          year,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors
-                                                .white, // Replace with your desired text color
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ).toList(),
-                                  style: const TextStyle(
-                                    color: Colors
-                                        .black, // Replace with your desired text color
+    return Padding(
+      padding: const EdgeInsets.only(left: 10, right: 10),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: Column(
+          children: [
+            const SizedBox(
+              height: 8,
+            ),
+            Card(
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10.0)),
+              elevation: 4,
+              child: Padding(
+                padding:
+                    const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+                child: SizedBox(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 2.0, horizontal: 10.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(5),
+                          color: Colors.indigo[
+                              800], // Replace with your desired tinted color
+                        ),
+                        child: Row(
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(Icons.filter_alt_outlined,
+                                    color: Colors.white),
+                                const SizedBox(width: 10),
+                                Text(
+                                  'School Year',
+                                  style: GoogleFonts.prompt(
+                                    fontSize: 19,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
                                   ),
-                                  underline:
-                                      Container(), // To hide the underline
-                                  dropdownColor: Colors.indigo[
-                                      400], // Replace with your desired dropdown background color
-                                )
-                              : const CircularProgressIndicator(),
-                        ],
+                                ),
+                              ],
+                            ),
+                            const Spacer(),
+                            selectedYear.isNotEmpty
+                                ? DropdownButton<String>(
+                                    value: selectedYear,
+                                    hint: const Text('Select Year'),
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedYear = newValue!;
+                                        for (var yr in enInfoData) {
+                                          if (yr.sydesc == selectedYear) {
+                                            syid = yr.syid;
+                                            getEvents();
+                                          }
+                                        }
+                                      });
+                                    },
+                                    items: years.map<DropdownMenuItem<String>>(
+                                      (String year) {
+                                        return DropdownMenuItem<String>(
+                                          value: year,
+                                          child: Text(
+                                            year,
+                                            style: const TextStyle(
+                                              fontSize: 18,
+                                              fontStyle: FontStyle.italic,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors
+                                                  .white, // Replace with your desired text color
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ).toList(),
+                                    style: const TextStyle(
+                                      color: Colors
+                                          .black, // Replace with your desired text color
+                                    ),
+                                    underline:
+                                        Container(), // To hide the underline
+                                    dropdownColor: Colors.indigo[
+                                        400], // Replace with your desired dropdown background color
+                                  )
+                                : const CircularProgressIndicator(),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          events.isNotEmpty
-              ? Expanded(
-                  flex: 2,
-                  child: SfCalendar(
-                    view: CalendarView.month,
-                    initialSelectedDate: DateTime.now(),
-                    dataSource: _AppointmentDataSource(_appointments),
-                    appointmentBuilder: appointmentBuilder,
-                    onTap: onTapCalendarCell,
-                    specialRegions: _getSpecialRegions(),
+            events.isNotEmpty
+                ? Expanded(
+                    flex: 2,
+                    child: SfCalendar(
+                      view: CalendarView.month,
+                      initialSelectedDate: DateTime.now(),
+                      dataSource: _AppointmentDataSource(_appointments),
+                      appointmentBuilder: appointmentBuilder,
+                      onTap: onTapCalendarCell,
+                      specialRegions: _getSpecialRegions(),
+                    ),
+                  )
+                : Expanded(
+                    flex: 2,
+                    child: SfCalendar(
+                      view: CalendarView.month,
+                      initialSelectedDate: DateTime.now(),
+                      dataSource: _AppointmentDataSource(_appointments),
+                      appointmentBuilder: appointmentBuilder,
+                      onTap: onTapCalendarCell,
+                      specialRegions: _getSpecialRegions(),
+                    ),
                   ),
-                )
-              : Expanded(
-                  flex: 2,
-                  child: SfCalendar(
-                    view: CalendarView.month,
-                    initialSelectedDate: DateTime.now(),
-                    dataSource: _AppointmentDataSource(_appointments),
-                    appointmentBuilder: appointmentBuilder,
-                    onTap: onTapCalendarCell,
-                    specialRegions: _getSpecialRegions(),
-                  ),
-                ),
-          events.isNotEmpty
-              ? Expanded(
-                  child: ListView.builder(
-                    itemCount: events.length,
-                    itemBuilder: (context, index) {
-                      Event event = events[index];
-                      return ListTile(
-                        title: Text(event.title),
-                        subtitle: Text(event.venue),
-                        trailing: Text(event.time),
-                      );
-                    },
-                  ),
-                )
-              : const SizedBox(
-                  height: 0,
-                )
-        ],
+            events.isNotEmpty
+                ? Expanded(
+                    child: ListView.builder(
+                      itemCount: events.length,
+                      itemBuilder: (context, index) {
+                        Event event = events[index];
+                        return ListTile(
+                          title: Text(event.title),
+                          subtitle: Text(event.venue),
+                          trailing: Text(event.time),
+                        );
+                      },
+                    ),
+                  )
+                : const SizedBox(
+                    height: 0,
+                  )
+          ],
+        ),
       ),
     );
   }

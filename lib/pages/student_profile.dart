@@ -52,53 +52,64 @@ class _StudentProfileState extends State<StudentProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        elevation: 4.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.only(left: 10, right: 10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              const SizedBox(height: 10),
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      elevation: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              offset: const Offset(0.0, 0.0),
+                              blurRadius: 13.0,
+                              spreadRadius: 4.0,
+                            )
+                          ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Column(
                             children: <Widget>[
-                              if (isValid)
-                                CachedNetworkImage(
-                                  imageUrl: "$host${user.picurl}",
-                                  imageBuilder: (context, imageProvider) =>
-                                      CircleAvatar(
-                                    radius: 70,
-                                    backgroundImage: imageProvider,
-                                  ),
-                                  placeholder: (context, url) => const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      const CircleAvatar(
-                                    backgroundColor: Colors.white,
-                                    radius: 70,
-                                    backgroundImage:
-                                        AssetImage("images/anonymous.jpg"),
-                                  ),
-                                ),
-                              if (!isValid)
-                                const CircleAvatar(
-                                  backgroundColor: Colors.white,
-                                  radius: 70,
-                                  backgroundImage:
-                                      AssetImage("images/anonymous.jpg"),
-                                ),
+                              const SizedBox(height: 5),
+                              user.picurl.isNotEmpty
+                                  ? CachedNetworkImage(
+                                      imageUrl: "$host${user.picurl}",
+                                      imageBuilder: (context, imageProvider) =>
+                                          CircleAvatar(
+                                        radius: 70,
+                                        backgroundImage: imageProvider,
+                                      ),
+                                      placeholder: (context, url) =>
+                                          const Center(
+                                        child: CircularProgressIndicator(),
+                                      ),
+                                      errorWidget: (context, url, error) =>
+                                          const CircleAvatar(
+                                        backgroundColor: Colors.white,
+                                        radius: 70,
+                                        backgroundImage:
+                                            AssetImage("images/anonymous.jpg"),
+                                      ),
+                                    )
+                                  : const CircleAvatar(
+                                      backgroundColor: Colors.white,
+                                      radius: 70,
+                                      backgroundImage:
+                                          AssetImage("images/anonymous.jpg"),
+                                    ),
                               const SizedBox(height: 16.0),
                               Text(
                                 '${user.firstname} ${user.middlename} ${user.lastname}',
@@ -123,63 +134,90 @@ class _StudentProfileState extends State<StudentProfile> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16.0),
-                Row(children: [
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
                   Expanded(
                     child: Card(
-                      elevation: 4.0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            const Text(
-                              'Address:',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8.0),
-                            ListTile(
-                              leading: const Icon(Icons.location_on),
-                              title: const Text('Street'),
-                              subtitle: Text(user.street),
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.location_city),
-                              title: const Text('Barangay'),
-                              subtitle: Text(user.barangay),
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.location_city),
-                              title: const Text('City'),
-                              subtitle: Text(user.city),
-                            ),
-                            ListTile(
-                              leading: const Icon(Icons.location_city),
-                              title: const Text('Province'),
-                              subtitle: Text(user.province),
-                            ),
+                      elevation: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              offset: const Offset(0.0, 0.0),
+                              blurRadius: 13.0,
+                              spreadRadius: 4.0,
+                            )
                           ],
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              const Text(
+                                'Address:',
+                                style: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8.0),
+                              ListTile(
+                                leading: const Icon(Icons.location_on),
+                                title: const Text('Street'),
+                                subtitle: Text(user.street),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.location_city),
+                                title: const Text('Barangay'),
+                                subtitle: Text(user.barangay),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.location_city),
+                                title: const Text('City'),
+                                subtitle: Text(user.city),
+                              ),
+                              ListTile(
+                                leading: const Icon(Icons.location_city),
+                                title: const Text('Province'),
+                                subtitle: Text(user.province),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ]),
-                const SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        elevation: 4.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.0),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              offset: const Offset(0.0, 0.0),
+                              blurRadius: 13.0,
+                              spreadRadius: 4.0,
+                            )
+                          ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -244,15 +282,26 @@ class _StudentProfileState extends State<StudentProfile> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        elevation: 4.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ],
+              ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      elevation: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              offset: const Offset(0.0, 0.0),
+                              blurRadius: 13.0,
+                              spreadRadius: 4.0,
+                            )
+                          ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -287,16 +336,27 @@ class _StudentProfileState extends State<StudentProfile> {
                         ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 16.0),
-                Row(
-                  children: [
-                    Expanded(
-                      child: Card(
-                        elevation: 4.0,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.0),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: Card(
+                      elevation: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(5.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.2),
+                              offset: const Offset(0.0, 0.0),
+                              blurRadius: 13.0,
+                              spreadRadius: 4.0,
+                            )
+                          ],
                         ),
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
@@ -333,10 +393,11 @@ class _StudentProfileState extends State<StudentProfile> {
                         ),
                       ),
                     ),
-                  ],
-                )
-              ],
-            ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+            ],
           ),
         ),
       ),

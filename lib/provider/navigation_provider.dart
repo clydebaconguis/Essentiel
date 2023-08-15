@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 class NavigationProvider extends ChangeNotifier {
   String _activeNav = '';
   bool _isCollapsed = false;
-
+  bool _isExpanded = false;
   bool get isCollapsed => _isCollapsed;
-  String get activeNav => _activeNav.isNotEmpty ? _activeNav : 'Home';
+  bool get isExpanded => _isExpanded;
+  String get activeNav => _activeNav.isNotEmpty ? _activeNav : 'Dashboard';
 
   void setActiveNav(data) {
     _activeNav = data;
@@ -15,6 +16,12 @@ class NavigationProvider extends ChangeNotifier {
 
   void toggleIsCollapsed() {
     _isCollapsed = !isCollapsed;
+
+    notifyListeners();
+  }
+
+  void toggleExpanded() {
+    _isExpanded = !isExpanded;
 
     notifyListeners();
   }

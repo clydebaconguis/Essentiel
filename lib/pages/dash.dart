@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:essentiel/models/billing_assessment.dart';
+import 'package:essentiel/models/enrollment_info.dart';
 import 'package:essentiel/pages/class_schedule.dart';
 import 'package:essentiel/pages/school_calendar.dart';
 import 'package:essentiel/provider/navigation_provider.dart';
@@ -7,9 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../api/my_api.dart';
-import 'home.dart';
+import 'package:essentiel/api/my_api.dart';
 
 class Dash extends StatefulWidget {
   final Function(Widget, String) updateData;
@@ -23,11 +23,12 @@ class _DashState extends State<Dash> {
   String id = '0';
   List<EnrollmentInfo> enInfoData = [];
   List<BillingAssessmentInfo> billInfoData = [];
-  double totalAss = 0.0;
   List<String> years = [];
+  List<String> months = [];
   String selectedYear = '';
   String selectedMonth = '';
-  List<String> months = [];
+  double totalAss = 0.0;
+  bool isCollege = false;
 
   // Example list of years
 
@@ -48,8 +49,13 @@ class _DashState extends State<Dash> {
           isactive: 0,
           strandid: 0,
           semester: '',
-          strandcode: ''),
+          strandcode: '',
+          courseabrv: ''),
     );
+  }
+
+  EnrollmentInfo? getCollegeEnr() {
+    return enInfoData[enInfoData.length - 1];
   }
 
   void totalAssessment() {
@@ -83,23 +89,27 @@ class _DashState extends State<Dash> {
 
   getEnrollment() async {
     await CallApi().getEnrollmentInfo(id).then((response) {
-      setState(() {
-        Iterable list = json.decode(response.body);
-        print(list);
-        enInfoData = list.map((model) {
-          return EnrollmentInfo.fromJson(model);
-        }).toList();
-
-        for (var element in enInfoData) {
-          if (element.isactive == 1) {
-            years.add(element.sydesc);
-            selectedYear = element.sydesc;
+      if (mounted) {
+        setState(() {
+          Iterable list = json.decode(response.body);
+          // print(list);
+          enInfoData = list.map((model) {
+            return EnrollmentInfo.fromJson(model);
+          }).toList();
+          for (var element in enInfoData) {
+            if (element.isactive == 1) {
+              years.add(element.sydesc);
+              selectedYear = element.sydesc;
+              if (element.courseabrv.isNotEmpty) {
+                isCollege = true;
+              }
+            }
           }
-        }
 
-        Set<String> uniqueSet = years.toSet();
-        years = uniqueSet.toList();
-      });
+          Set<String> uniqueSet = years.toSet();
+          years = uniqueSet.toList();
+        });
+      }
     });
   }
 
@@ -107,7 +117,7 @@ class _DashState extends State<Dash> {
     await CallApi().getBillingInfo(id).then((response) {
       setState(() {
         Iterable list = json.decode(response.body);
-        print(list);
+        // print(list);
         billInfoData = list.map((model) {
           return BillingAssessmentInfo.fromJson(model);
         }).toList();
@@ -136,7 +146,8 @@ class _DashState extends State<Dash> {
 
   @override
   Widget build(BuildContext context) {
-    EnrollmentInfo? selectedEnrollment = getSelectedEnrollmentInfo();
+    EnrollmentInfo? selectedEnrollment =
+        isCollege ? getCollegeEnr() : getSelectedEnrollmentInfo();
     BillingAssessmentInfo? selectedAssessment = getSelectedAssessmentInfo();
     return ListView(
       padding: const EdgeInsets.only(left: 5, right: 5),
@@ -155,14 +166,20 @@ class _DashState extends State<Dash> {
                   widget.updateData(const ClassSchedPage(), "Class Schedule");
                 },
                 child: Card(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5.0),
-                  ),
-                  elevation: 4,
+                  elevation: 0,
                   child: Container(
                     padding: const EdgeInsets.all(0),
-                    decoration: const BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.4),
+                          offset: const Offset(0.0, 0.0),
+                          blurRadius: 10.0,
+                          spreadRadius: 4.0,
+                        )
+                      ],
                     ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -206,8 +223,6 @@ class _DashState extends State<Dash> {
                 ),
               ),
             ),
-
-            // Adjust the spacing between the cards as needed
             Expanded(
               child: GestureDetector(
                 onTap: () {
@@ -219,13 +234,21 @@ class _DashState extends State<Dash> {
                   widget.updateData(const SchoolCalendar(), "School Calendar");
                 },
                 child: Card(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5.0)),
-                  elevation: 4,
+                  elevation: 0,
                   child: Container(
                     padding: const EdgeInsets.all(0),
-                    decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(10.0))),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.4),
+                          offset: const Offset(0.0, 0.0),
+                          blurRadius: 10.0,
+                          spreadRadius: 4.0,
+                        )
+                      ],
+                    ),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -285,13 +308,22 @@ class _DashState extends State<Dash> {
           height: 10,
         ),
         Card(
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-          elevation: 4,
+          elevation: 0,
           child: Padding(
-            padding:
-                const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
-            child: SizedBox(
+            padding: const EdgeInsets.all(0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.4),
+                    offset: const Offset(0.0, 0.0),
+                    blurRadius: 15.0,
+                    spreadRadius: 4.0,
+                  )
+                ],
+              ),
               child: Column(
                 children: [
                   Container(
@@ -310,15 +342,18 @@ class _DashState extends State<Dash> {
                         const Icon(Icons.filter_alt_outlined,
                             color: Colors.white),
                         const SizedBox(width: 5),
-                        Text(
-                          'Enrollment Info',
-                          style: GoogleFonts.prompt(
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        Expanded(
+                          child: Text(
+                            'Enrollment Info',
+                            style: GoogleFonts.prompt(
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
-                        const Spacer(),
                         selectedYear.isNotEmpty
                             ? DropdownButton<String>(
                                 value: selectedYear,
@@ -331,6 +366,7 @@ class _DashState extends State<Dash> {
                                 items: years.map<DropdownMenuItem<String>>(
                                   (String year) {
                                     return DropdownMenuItem<String>(
+                                      enabled: false,
                                       value: year,
                                       child: Text(
                                         year,
@@ -358,61 +394,9 @@ class _DashState extends State<Dash> {
                     ),
                   ),
                   if (selectedEnrollment != null)
-                    Container(
-                      padding: const EdgeInsets.all(0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.blue[
-                            100], // Replace with your desired tinted color
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors
-                                  .white, // Replace with your desired tinted color
-                              borderRadius: BorderRadius.circular(0),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10.0),
-                            // child: Text(
-                            //   selectedEnrollment.sectionname,
-                            //   style: const TextStyle(
-                            //     fontSize: 20.0,
-                            //     fontWeight: FontWeight.bold,
-                            //   ),
-                            // ),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Section',
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Expanded(
-                                  child: Text(
-                                    selectedEnrollment.sectionname,
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.right,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                    Column(
+                      children: [
+                        if (selectedEnrollment.courseabrv.isNotEmpty)
                           Container(
                             decoration: BoxDecoration(
                               color: Colors.grey[
@@ -420,15 +404,15 @@ class _DashState extends State<Dash> {
                               borderRadius: BorderRadius.circular(0),
                             ),
                             padding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10.0),
+                                vertical: 13.0, horizontal: 12.0),
                             child: Row(
                               children: [
                                 Expanded(
                                   child: Text(
-                                    'Grade Level',
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
+                                    'Course',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 15,
                                       color: Colors
                                           .black87, // Replace with your desired text color
                                     ),
@@ -436,63 +420,128 @@ class _DashState extends State<Dash> {
                                   ),
                                 ),
                                 const Spacer(),
-                                Expanded(
-                                  child: Text(
-                                    selectedEnrollment.levelname,
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.right,
+                                Text(
+                                  selectedEnrollment.courseabrv,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Container(
-                            decoration: const BoxDecoration(
-                              color: Colors
-                                  .white, // Replace with your desired tinted color
-                              borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(5.0),
-                                  bottomRight: Radius.circular(5.0)),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Date Enrolled',
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Expanded(
-                                  child: Text(
-                                    selectedEnrollment.dateenrolled,
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.right,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors
+                                .white, // Replace with your desired tinted color
+                            borderRadius: BorderRadius.circular(0),
                           ),
-                        ],
-                      ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 13.0, horizontal: 12.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Section',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                selectedEnrollment.sectionname,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                  color: Colors
+                                      .black87, // Replace with your desired text color
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[
+                                100], // Replace with your desired tinted color
+                            borderRadius: BorderRadius.circular(0),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 13.0, horizontal: 12.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  '${selectedEnrollment.courseabrv.isEmpty ? "Grade Level" : "Year Level"} ',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                              const Spacer(),
+                              Text(
+                                selectedEnrollment.levelname,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 15,
+                                  color: Colors
+                                      .black87, // Replace with your desired text color
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Colors
+                                .white, // Replace with your desired tinted color
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(5.0),
+                                bottomRight: Radius.circular(5.0)),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 13.0, horizontal: 12.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Date Enrolled',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                              const Spacer(),
+                              Expanded(
+                                child: Text(
+                                  selectedEnrollment.dateenrolled,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
+                                  ),
+                                  textAlign: TextAlign.right,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                 ],
               ),
@@ -505,11 +554,22 @@ class _DashState extends State<Dash> {
         Card(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-          elevation: 4,
+          elevation: 0,
           child: Padding(
-            padding:
-                const EdgeInsets.only(left: 0, right: 0, bottom: 0, top: 0),
-            child: SizedBox(
+            padding: const EdgeInsets.all(0),
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(5.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.4),
+                    offset: const Offset(0.0, 0.0),
+                    blurRadius: 15.0,
+                    spreadRadius: 4.0,
+                  )
+                ],
+              ),
               child: Column(
                 children: [
                   Container(
@@ -528,17 +588,21 @@ class _DashState extends State<Dash> {
                         const Icon(Icons.filter_alt_outlined,
                             color: Colors.white),
                         const SizedBox(width: 5),
-                        Text(
-                          'Billing Assessment',
-                          style: GoogleFonts.prompt(
-                            fontSize: 19,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                        Expanded(
+                          child: Text(
+                            'Billing Assessment',
+                            style: GoogleFonts.prompt(
+                              fontSize: 19,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         ),
-                        const Spacer(),
                         selectedMonth.isNotEmpty
                             ? DropdownButton<String>(
+                                alignment: Alignment.topRight,
                                 value: selectedMonth,
                                 hint: const Text('Select Month'),
                                 onChanged: (String? newValue) {
@@ -556,9 +620,10 @@ class _DashState extends State<Dash> {
                                           fontSize: 18,
                                           fontStyle: FontStyle.italic,
                                           fontWeight: FontWeight.bold,
-                                          color: Colors
-                                              .white, // Replace with your desired text color
+                                          color: Colors.white,
+                                          overflow: TextOverflow.ellipsis,
                                         ),
+                                        maxLines: 1,
                                       ),
                                     );
                                   },
@@ -572,136 +637,124 @@ class _DashState extends State<Dash> {
                     ),
                   ),
                   if (selectedAssessment != null)
-                    Container(
-                      padding: const EdgeInsets.all(0),
-                      decoration: BoxDecoration(
-                        borderRadius: const BorderRadius.only(
-                          bottomLeft: Radius.circular(5.0),
-                          bottomRight: Radius.circular(5.0),
-                        ),
-                        color: Colors.blue[
-                            100], // Replace with your desired tinted color
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors
-                                  .white, // Replace with your desired tinted color
-                              borderRadius: BorderRadius.circular(0),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 10),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Particulars',
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.left,
-                                  ),
-                                ),
-                                const Spacer(),
-                                Expanded(
-                                  child: Text(
-                                    'Amount',
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.right,
-                                  ),
-                                ),
-                              ],
-                            ),
+                    Column(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors
+                                .white, // Replace with your desired tinted color
+                            borderRadius: BorderRadius.circular(0),
                           ),
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[
-                                  100], // Replace with your desired tinted color
-                              borderRadius: BorderRadius.circular(0),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10, horizontal: 10.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    selectedAssessment.particulars,
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.left,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 13, horizontal: 12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Particulars',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
                                   ),
+                                  textAlign: TextAlign.left,
                                 ),
-                                Expanded(
-                                  child: Text(
-                                    '₱ ${selectedAssessment.amount}', // Add the peso sign before the amount
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.right,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            decoration: const BoxDecoration(
-                              color: Colors
-                                  .white, // Replace with your desired tinted color
-                              borderRadius: BorderRadius.only(
-                                bottomLeft: Radius.circular(5.0),
-                                bottomRight: Radius.circular(5.0),
                               ),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 10.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    'Total Assessment',
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.left,
+                              const Spacer(),
+                              Expanded(
+                                child: Text(
+                                  'Amount',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
                                   ),
+                                  textAlign: TextAlign.right,
                                 ),
-                                Expanded(
-                                  child: Text(
-                                    '\u20B1 $totalAss', // Add the peso sign before the amount
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors
-                                          .black87, // Replace with your desired text color
-                                    ),
-                                    textAlign: TextAlign.right,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.grey[
+                                100], // Replace with your desired tinted color
+                            borderRadius: BorderRadius.circular(0),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 13, horizontal: 12.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  selectedAssessment.particulars,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
                                   ),
+                                  textAlign: TextAlign.left,
                                 ),
-                              ],
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '₱ ${selectedAssessment.amount}', // Add the peso sign before the amount
+                                  style: GoogleFonts.prompt(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
+                                  ),
+                                  textAlign: TextAlign.right,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Container(
+                          decoration: const BoxDecoration(
+                            color: Colors
+                                .white, // Replace with your desired tinted color
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(5.0),
+                              bottomRight: Radius.circular(5.0),
                             ),
                           ),
-                        ],
-                      ),
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 13.0, horizontal: 12.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Total Assessment',
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
+                                  ),
+                                  textAlign: TextAlign.left,
+                                ),
+                              ),
+                              Expanded(
+                                child: Text(
+                                  '\u20B1 $totalAss', // Add the peso sign before the amount
+                                  style: GoogleFonts.prompt(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 15,
+                                    color: Colors
+                                        .black87, // Replace with your desired text color
+                                  ),
+                                  textAlign: TextAlign.right,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
                 ],
               ),

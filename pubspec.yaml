@@ -44,6 +44,27 @@ dependencies:
   syncfusion_flutter_calendar: ^22.1.38
   google_fonts: ^4.0.4
   table_calendar: ^3.0.9
+  flutter_statusbarcolor_ns: ^0.5.0
+  rename: ^2.1.1
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "images/essentiel.png"
+  # min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "images/essentiel.png"
+    # background_color: "#hexcode"
+    # theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "images/essentiel.png"
+    icon_size: 48 # min:48, max:256, default: 48
+  macos:
+    generate: true
+    image_path: "images/essentiel.png"
 
 dev_dependencies:
   flutter_test:
@@ -89,12 +110,11 @@ flutter:
           - asset: fonts/Prompt-Regular.ttf
           - asset: fonts/Prompt-Black.ttf
           - asset: fonts/Prompt-Bold.ttf
-          - asset: fonts/Prompt-ExtraBold.ttf
-          - asset: fonts/Prompt-ExtraLight.ttf
-          - asset: fonts/Prompt-Light.ttf
           - asset: fonts/Prompt-Medium.ttf
-          - asset: fonts/Prompt-SemiBold.ttf
-          - asset: fonts/Prompt-Thin.ttf
+      - family: Poppins
+        fonts:
+          - asset: fonts/Poppins-Regular.ttf
+          - asset: fonts/Poppins-Bold.ttf
   # fonts:
   #   - family: Schyler
   #     fonts:

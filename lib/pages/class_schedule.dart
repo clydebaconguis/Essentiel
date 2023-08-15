@@ -1,13 +1,12 @@
 import 'dart:convert';
 
+import 'package:essentiel/models/enrollment_info.dart';
 import 'package:essentiel/user/user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import '../api/my_api.dart';
-import '../user/user.dart';
-import 'home.dart';
+import 'package:essentiel/api/my_api.dart';
+import 'package:essentiel/user/user.dart';
 
 class ClassSchedPage extends StatefulWidget {
   const ClassSchedPage({super.key});
@@ -15,16 +14,6 @@ class ClassSchedPage extends StatefulWidget {
   @override
   State<ClassSchedPage> createState() => _ClassSchedPageState();
 }
-
-// class Yearly {
-//   final int syid;
-//   final String year;
-//
-//   Yearly({
-//     required this.syid,
-//     required this.year,
-//   });
-// }
 
 class _ClassSchedPageState extends State<ClassSchedPage> {
   User user = UserData.myUser;
@@ -53,7 +42,7 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
     }
     // Retrieve the assessment info based on the selected year
     else {
-      print("displaying new sched");
+      // print("displaying new sched");
       listOfItem3.clear();
       for (var element in listOfItem2) {
         if (element.month.contains(selectedMonth)) {
@@ -71,10 +60,6 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
           });
         }
       }
-      // return listOfSched.firstWhere(
-      //   (item) => item.day.toLowerCase().contains(selectedMonth.toLowerCase()),
-      //   orElse: () => SchedData(day: '', sched: []),
-      // );
     }
   }
 
@@ -91,14 +76,14 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
       setState(() {
         for (var element in list) {
           var ll = element['schedule'];
-          print(ll);
+          // print(ll);
           for (var el in ll) {
             listOfItem.clear();
             if (el['day'] != null && el['sched'] != null) {
               // var day = json.decode(el['day']);
               var sched = el['sched'];
-              print(sched);
-              print(el['day']);
+              // print(sched);
+              // print(el['day']);
               if (sched.isNotEmpty || sched != null) {
                 for (var item in sched) {
                   if (item['start'] != null) {
@@ -135,9 +120,9 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
           }
 
           semid = index;
-          print(listOfSched.length);
+          // print(listOfSched.length);
           selectedMonth = listOfSched[0].day;
-          print(selectedMonth);
+          // print(selectedMonth);
           getSchedByMonth();
         }
       });
@@ -148,7 +133,7 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
     await CallApi().getEnrollmentInfo(user.id).then((response) {
       setState(() {
         Iterable list = json.decode(response.body);
-        print(list);
+        // print(list);
         enInfoData = list.map((model) {
           return EnrollmentInfo.fromJson(model);
         }).toList();
@@ -156,7 +141,7 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
         for (var element in enInfoData) {
           years.add(element.sydesc);
           semesters.add(element.semester);
-          print(element.semester);
+          // print(element.semester);
         }
         Set<String> uniqueSet = years.toSet();
         years = uniqueSet.toList();
@@ -164,7 +149,7 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
         selectedSem = semesters[0];
         for (var yr in enInfoData) {
           if (yr.sydesc == selectedYear) {
-            print("has match");
+            // print("has match");
             setState(() {
               syid = yr.syid;
               semid = 1;
@@ -209,6 +194,7 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
         strandid: 0,
         semester: '',
         strandcode: '',
+        courseabrv: '',
       ),
     );
   }
@@ -221,15 +207,106 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        body: Column(
-          children: [
-            const SizedBox(
-              height: 10,
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: ListView(
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        children: [
+          const SizedBox(
+            height: 10,
+          ),
+          // enrollment info dropdown yearly
+          Card(
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0)),
+            elevation: 4,
+            child: Padding(
+              padding:
+                  const EdgeInsets.only(left: 0, right: 0, top: 0, bottom: 0),
+              child: SizedBox(
+                child: Column(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 2.0, horizontal: 10.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        color: Colors.indigo[
+                            800], // Replace with your desired tinted color
+                      ),
+                      child: Row(
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.filter_alt_outlined,
+                                  color: Colors.white),
+                              const SizedBox(width: 10),
+                              Text(
+                                'School Year',
+                                style: GoogleFonts.prompt(
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const Spacer(),
+                          selectedYear.isNotEmpty
+                              ? DropdownButton<String>(
+                                  value: selectedYear,
+                                  hint: const Text('Select Year'),
+                                  onChanged: (String? newValue) {
+                                    setState(() {
+                                      selectedYear = newValue!;
+                                      for (var yr in enInfoData) {
+                                        if (yr.sydesc == selectedYear) {
+                                          syid = yr.syid;
+                                          sectionid = yr.sectionid;
+                                          levelid = yr.levelid;
+                                          selectedMonth = listOfItem2[0].month;
+                                          // print(selectedMonth);
+                                          getStudSchedule(1);
+                                        }
+                                      }
+                                    });
+                                  },
+                                  items: years.map<DropdownMenuItem<String>>(
+                                    (String year) {
+                                      return DropdownMenuItem<String>(
+                                        value: year,
+                                        child: Text(
+                                          year,
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontStyle: FontStyle.italic,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors
+                                                .white, // Replace with your desired text color
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ).toList(),
+                                  style: const TextStyle(
+                                    color: Colors
+                                        .black, // Replace with your desired text color
+                                  ),
+                                  underline:
+                                      Container(), // To hide the underline
+                                  dropdownColor: Colors.indigo[
+                                      500], // Replace with your desired dropdown background color
+                                )
+                              : const CircularProgressIndicator(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-            // enrollment info dropdown yearly
+          ),
+          if (levelid == 14 || levelid == 15 || levelid >= 17)
             Card(
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10.0)),
@@ -244,9 +321,10 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                         padding: const EdgeInsets.symmetric(
                             vertical: 2.0, horizontal: 10.0),
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(5),
-                          color: Colors.indigo[
-                              800], // Replace with your desired tinted color
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5)),
+                          color: Colors.blue[
+                              400], // Replace with your desired tinted color
                         ),
                         child: Row(
                           children: [
@@ -256,7 +334,7 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                                     color: Colors.white),
                                 const SizedBox(width: 10),
                                 Text(
-                                  'School Year',
+                                  'Semester',
                                   style: GoogleFonts.prompt(
                                     fontSize: 19,
                                     fontWeight: FontWeight.bold,
@@ -266,32 +344,46 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                               ],
                             ),
                             const Spacer(),
-                            selectedYear.isNotEmpty
+                            selectedSem.isNotEmpty
                                 ? DropdownButton<String>(
-                                    value: selectedYear,
-                                    hint: const Text('Select Year'),
+                                    value: selectedSem,
+                                    hint: const Text('Select Sem'),
                                     onChanged: (String? newValue) {
                                       setState(() {
-                                        selectedYear = newValue!;
-                                        for (var yr in enInfoData) {
-                                          if (yr.sydesc == selectedYear) {
-                                            syid = yr.syid;
-                                            sectionid = yr.sectionid;
-                                            levelid = yr.levelid;
-                                            selectedMonth =
-                                                listOfItem2[0].month;
-                                            print(selectedMonth);
-                                            getStudSchedule(1);
+                                        selectedSem = newValue!;
+                                        for (var each in enInfoData) {
+                                          if (each.semester == newValue) {
+                                            // print(
+                                            //     "success in ${each.semester} == $newValue");
+
+                                            // print("success semid ${user.id}");
+                                            semid = each.semid;
+                                            // print(
+                                            //     "success semid ${each.semid}");
+
+                                            syid = each.syid;
+                                            // print(
+                                            // "success syid ${each.syid}");
+
+                                            sectionid = each.sectionid;
+                                            // print(
+                                            //     "success sectionid  ${each.sectionid}");
+                                            levelid = each.levelid;
+                                            // print(
+                                            //     "success levelid ${each.levelid}");
+                                            getStudSchedule(each.semid);
+                                            break;
                                           }
                                         }
                                       });
                                     },
-                                    items: years.map<DropdownMenuItem<String>>(
-                                      (String year) {
+                                    items:
+                                        semesters.map<DropdownMenuItem<String>>(
+                                      (String semes) {
                                         return DropdownMenuItem<String>(
-                                          value: year,
+                                          value: semes,
                                           child: Text(
-                                            year,
+                                            semes.toString(),
                                             style: const TextStyle(
                                               fontSize: 18,
                                               fontStyle: FontStyle.italic,
@@ -305,12 +397,12 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                                     ).toList(),
                                     style: const TextStyle(
                                       color: Colors
-                                          .black, // Replace with your desired text color
+                                          .white, // Replace with your desired text color
                                     ),
                                     underline:
                                         Container(), // To hide the underline
-                                    dropdownColor: Colors.indigo[
-                                        500], // Replace with your desired dropdown background color
+                                    dropdownColor: Colors.blue[
+                                        300], // Replace with your desired dropdown background color
                                   )
                                 : const CircularProgressIndicator(),
                           ],
@@ -321,236 +413,127 @@ class _ClassSchedPageState extends State<ClassSchedPage> {
                 ),
               ),
             ),
-            if (levelid == 14 || levelid == 15 || levelid >= 17)
-              Card(
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10.0)),
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.only(
-                      left: 0, right: 0, top: 0, bottom: 0),
-                  child: SizedBox(
-                    child: Column(
+          Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(0),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 2.0,
+                      horizontal: 10.0,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: Colors.blue[600],
+                    ),
+                    child: Row(
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 2.0, horizontal: 10.0),
-                          decoration: BoxDecoration(
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5)),
-                            color: Colors.blue[
-                                400], // Replace with your desired tinted color
-                          ),
-                          child: Row(
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.filter_alt_outlined,
-                                      color: Colors.white),
-                                  const SizedBox(width: 10),
-                                  Text(
-                                    'Semester',
-                                    style: GoogleFonts.prompt(
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const Spacer(),
-                              selectedSem.isNotEmpty
-                                  ? DropdownButton<String>(
-                                      value: selectedSem,
-                                      hint: const Text('Select Sem'),
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          selectedSem = newValue!;
-                                          for (var each in enInfoData) {
-                                            if (each.semester == newValue) {
-                                              print(
-                                                  "success in ${each.semester} == $newValue");
-
-                                              print("success semid ${user.id}");
-                                              semid = each.semid;
-                                              print(
-                                                  "success semid ${each.semid}");
-
-                                              syid = each.syid;
-                                              print(
-                                                  "success syid ${each.syid}");
-
-                                              sectionid = each.sectionid;
-                                              print(
-                                                  "success sectionid  ${each.sectionid}");
-                                              levelid = each.levelid;
-                                              print(
-                                                  "success levelid ${each.levelid}");
-                                              getStudSchedule(each.semid);
-                                              break;
-                                            }
-                                          }
-                                        });
-                                      },
-                                      items: semesters
-                                          .map<DropdownMenuItem<String>>(
-                                        (String semes) {
-                                          return DropdownMenuItem<String>(
-                                            value: semes,
-                                            child: Text(
-                                              semes.toString(),
-                                              style: const TextStyle(
-                                                fontSize: 18,
-                                                fontStyle: FontStyle.italic,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors
-                                                    .white, // Replace with your desired text color
-                                              ),
-                                            ),
-                                          );
-                                        },
-                                      ).toList(),
-                                      style: const TextStyle(
-                                        color: Colors
-                                            .white, // Replace with your desired text color
-                                      ),
-                                      underline:
-                                          Container(), // To hide the underline
-                                      dropdownColor: Colors.blue[
-                                          300], // Replace with your desired dropdown background color
-                                    )
-                                  : const CircularProgressIndicator(),
-                            ],
+                        const Icon(Icons.filter_alt_outlined,
+                            color: Colors.white),
+                        const SizedBox(width: 10),
+                        Text(
+                          'Class Schedule',
+                          style: GoogleFonts.prompt(
+                            fontSize: 19,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
+                        const Spacer(),
+                        selectedMonth.isNotEmpty
+                            ? DropdownButton<String>(
+                                value: selectedMonth,
+                                hint: const Text('Select Month'),
+                                onChanged: (String? newValue) {
+                                  setState(() {
+                                    selectedMonth = newValue!;
+                                    getSchedByMonth();
+                                  });
+                                },
+                                items: months.map<DropdownMenuItem<String>>(
+                                  (String month) {
+                                    return DropdownMenuItem<String>(
+                                      value: month,
+                                      child: Text(
+                                        month,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontStyle: FontStyle.italic,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ).toList(),
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                ),
+                                underline: Container(),
+                                dropdownColor: Colors.blue[400],
+                              )
+                            : const CircularProgressIndicator(),
                       ],
                     ),
                   ),
+                ],
+              ),
+            ),
+          ),
+          DataTable(
+            columnSpacing: 20,
+            columns: const [
+              DataColumn(label: Text('Time')),
+              DataColumn(
+                label: Text(
+                  'Room',
+                  textAlign: TextAlign.center,
                 ),
               ),
-            Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              elevation: 4,
-              child: Padding(
-                padding: const EdgeInsets.all(0),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 2.0,
-                        horizontal: 10.0,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: Colors.blue[600],
-                      ),
-                      child: Row(
+              DataColumn(label: Text('Subject / Teacher')),
+            ],
+            rows: listOfItem3.asMap().entries.map((entry) {
+              final index = entry.key;
+              final item = entry.value;
+              final isEvenRow = index % 2 == 0;
+              final rowColor = isEvenRow ? Colors.grey.shade200 : Colors.white;
+
+              return DataRow(
+                  color: MaterialStateColor.resolveWith((states) => rowColor),
+                  cells: [
+                    DataCell(
+                      Column(
                         children: [
-                          const Icon(Icons.filter_alt_outlined,
-                              color: Colors.white),
-                          const SizedBox(width: 10),
                           Text(
-                            'Class Schedule',
-                            style: GoogleFonts.prompt(
-                              fontSize: 19,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
+                            item.start,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-                          const Spacer(),
-                          selectedMonth.isNotEmpty
-                              ? DropdownButton<String>(
-                                  value: selectedMonth,
-                                  hint: const Text('Select Month'),
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedMonth = newValue!;
-                                      getSchedByMonth();
-                                    });
-                                  },
-                                  items: months.map<DropdownMenuItem<String>>(
-                                    (String month) {
-                                      return DropdownMenuItem<String>(
-                                        value: month,
-                                        child: Text(
-                                          month,
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontStyle: FontStyle.italic,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ).toList(),
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                  ),
-                                  underline: Container(),
-                                  dropdownColor: Colors.blue[400],
-                                )
-                              : const CircularProgressIndicator(),
+                          Text(
+                            item.end,
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-            DataTable(
-              columnSpacing: 20,
-              columns: const [
-                DataColumn(label: Text('Time')),
-                DataColumn(
-                  label: Text(
-                    'Room',
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                DataColumn(label: Text('Subject / Teacher')),
-              ],
-              rows: listOfItem3.asMap().entries.map((entry) {
-                final index = entry.key;
-                final item = entry.value;
-                final isEvenRow = index % 2 == 0;
-                final rowColor =
-                    isEvenRow ? Colors.grey.shade200 : Colors.white;
-
-                return DataRow(
-                    color: MaterialStateColor.resolveWith((states) => rowColor),
-                    cells: [
-                      DataCell(
-                        Column(
-                          children: [
-                            Text(
-                              item.start,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            Text(
-                              item.end,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ],
-                        ),
+                    DataCell(Text(item.room)),
+                    DataCell(
+                      Text(
+                        ' ${item.subject} / ${item.teacher}',
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 2,
                       ),
-                      DataCell(Text(item.room)),
-                      DataCell(
-                        Text(
-                          ' ${item.subject} / ${item.teacher}',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                        ),
-                      ),
-                    ]);
-              }).toList(),
-            ),
-          ],
-        ),
+                    ),
+                  ]);
+            }).toList(),
+          ),
+        ],
       ),
     );
   }

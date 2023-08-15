@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'package:essentiel/util/app_util.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
+import 'package:http/http.dart' as http;
 import 'package:essentiel/api/my_api.dart';
-import 'package:essentiel/components/text_widget.dart';
 import 'package:essentiel/pages/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_easyloading/flutter_easyloading.dart';
@@ -19,10 +21,17 @@ const snackBar2 = SnackBar(
 );
 
 class _SignInState extends State<SignIn> {
-  var color = Colors.black;
-  var spctColor = const Color.fromARGB(255, 7, 5, 102);
   var loggedIn = false;
-  // late bool _isLoading = false;
+  var schoolcolor = 0;
+  var schoollogo = '';
+  var schoolname = '';
+  var schoolabbv = '';
+  var schooladdress = '';
+  bool isValid = false;
+  bool isVisible = true;
+  bool isButtonEnabled = true;
+  var host = CallApi().getImage();
+  late SharedPreferences localStorage;
   TextEditingController textController = TextEditingController();
   TextEditingController emailController = TextEditingController();
 
@@ -37,40 +46,71 @@ class _SignInState extends State<SignIn> {
 
   _login() async {
     EasyLoading.show(status: 'loading...');
-    // var data = {
-    //   'username': emailController.text,
-    //   'pword': textController.text,
-    //   'token': 'askdflksadlk1293lAHSAKAS',
-    // };
-    // print(emailController.text);
-    // print(textController.text);
+    try {
+      var res = await CallApi().login(
+          emailController.text.toString(), textController.text.toString());
+      var body = res != null ? json.decode(res.body) : '';
+      var studInfo = body['stud']['id'] ?? 0;
 
-    var res = await CallApi()
-        .login(emailController.text.toString(), textController.text.toString());
-    var body = json.decode(res.body);
-    // print(body);
-    var studInfo = body['stud']['id'];
-    // print(studInfo);
-
-    if (studInfo > 0) {
-      SharedPreferences localStorage = await SharedPreferences.getInstance();
-      localStorage.setString('user', json.encode(body['stud']));
-      localStorage.setString('studid', json.encode(body['stud']['id']));
-      EasyLoading.showSuccess('Great Success!');
-      _navigateToHome();
-    } else {
-      // _showMsg(body['message']);
+      if (studInfo > 0) {
+        localStorage.setString('user', json.encode(body['stud']));
+        localStorage.setString('studid', json.encode(body['stud']['id']));
+        localStorage.setInt('schoolcolor', schoolcolor);
+        localStorage.setString('schoollogo', schoollogo);
+        localStorage.setString('schoolname', schoolname);
+        localStorage.setString('schoolabbv', schoolabbv);
+        EasyLoading.showSuccess('Successfully logged in!');
+        _navigateToHome();
+      } else {
+        // _showMsg(body['message']);
+        EasyLoading.showError('Failed to Login');
+        EasyLoading.dismiss();
+      }
+    } catch (e) {
+      // print('Error during login: $e');
       EasyLoading.showError('Failed to Login');
+    } finally {
       EasyLoading.dismiss();
+    }
+    if (mounted) {
+      setState(() {
+        isButtonEnabled = true;
+      });
     }
   }
 
   getSchoolInfo() async {
+    localStorage = await SharedPreferences.getInstance();
     var res = await CallApi().getSchoolInfo();
     var body = json.decode(res.body);
-    print(body);
-    // SharedPreferences localStorage = await SharedPreferences.getInstance();
-    //   localStorage.setString('user', json.encode(body['stud']));
+    // print(body);
+    if (body[0]['schoolid'] != null) {
+      if (mounted) {
+        setState(() {
+          schoolcolor = AppUtil().hexToColor(body[0]['schoolcolor']);
+          schoollogo = body[0]['picurl'] ?? '';
+          schoolabbv = body[0]['abbreviation'] ?? '';
+          schoolname = body[0]['schoolname'] ?? '';
+          schooladdress = body[0]['address'] ?? '';
+          changeStatusBarColor();
+        });
+      }
+      final response = await http.head(Uri.parse('$host$schoollogo'));
+      if (mounted) {
+        setState(() {
+          isValid = response.statusCode == 200;
+        });
+      }
+    }
+  }
+
+  changeStatusBarColor() async {
+    await FlutterStatusbarcolor.setStatusBarColor(Color(schoolcolor));
+    if (useWhiteForeground(Color(schoolcolor))) {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    } else {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    }
   }
 
   @override
@@ -79,199 +119,218 @@ class _SignInState extends State<SignIn> {
     super.initState();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final double height = MediaQuery.of(context).size.height;
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SafeArea(
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: Container(
-            padding: const EdgeInsets.only(left: 30, right: 40),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  SizedBox(height: height * 0.1),
-                  const CircleAvatar(
-                    radius: 70,
-                    backgroundColor: Color(0xFF0A0A0A),
-                    child: CircleAvatar(
-                      backgroundColor: Color(0xFFD5F6FF),
-                      backgroundImage: AssetImage("images/spctLogo.jpg"),
-                      radius: 70,
-                    ),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  // const Text("Julio Pacana St., Licuan, Cagayan de Oro City"),
-                  SizedBox(height: height * 0.1),
-                  TextInput(
-                      textString: "Username",
-                      textController: emailController,
-                      hint: "Username"),
-                  SizedBox(
-                    height: height * .05,
-                  ),
-                  TextInput(
-                    textString: "Password",
-                    textController: textController,
-                    hint: "Password",
-                    obscureText: true,
-                  ),
-                  SizedBox(
-                    height: height * .05,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // TextWidget(
-                      //     color: color,
-                      //     text: "Sign in",
-                      //     fontSize: 22,
-                      //     isUnderLine: false),
-                      Text(
-                        'Sign in',
-                        style: GoogleFonts.prompt(
-                          textStyle: TextStyle(
-                              color: spctColor,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 26),
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          if (textController.text.isEmpty ||
-                              emailController.text.isEmpty) {
-                            EasyLoading.showToast(
-                              'Fill all fields!',
-                              toastPosition: EasyLoadingToastPosition.bottom,
-                            );
-                          } else {
-                            _login();
-                          }
-                        },
-                        child: Container(
-                          height: 60,
-                          width: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: spctColor,
-                          ),
-                          child: const Icon(Icons.arrow_forward,
-                              color: Colors.white, size: 30),
-                        ),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: height * .1,
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(
-                          //     builder: (context) => const SignUp(),
-                          //   ),
-                          // );
-                          EasyLoading.showInfo(
-                              'Sign up is temporarily unavailable!');
-                        },
-                        child: TextWidget(
-                          color: spctColor,
-                          text: "Sign up",
-                          fontSize: 16,
-                          isUnderLine: true,
-                        ),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          EasyLoading.showInfo(
-                              'Pls inform the authority or your teacher if you forgot your credentials!');
-                        },
-                        child: TextWidget(
-                          color: spctColor,
-                          text: "Forgot Password",
-                          fontSize: 16,
-                          isUnderLine: true,
-                        ),
-                      )
-                    ],
-                  )
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      builder: EasyLoading.init(),
+  Widget _emailPasswordWidget() {
+    return Column(
+      children: <Widget>[
+        _entryField("Username"),
+        _entryField("Password", isPassword: true),
+      ],
     );
   }
-}
 
-class TextInput extends StatefulWidget {
-  final String textString;
-  final TextEditingController textController;
-  final String hint;
-  final bool obscureText;
+  Widget _entryField(String title, {bool isPassword = false}) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Text(
+            title,
+            style: GoogleFonts.poppins(
+                fontWeight: FontWeight.bold,
+                fontSize: 15,
+                color: Colors.black87),
+          ),
+          const SizedBox(
+            height: 10,
+          ),
+          Stack(
+            children: [
+              TextField(
+                controller:
+                    title == "Username" ? emailController : textController,
+                obscureText: title == "Password" ? isVisible : false,
+                decoration: const InputDecoration(
+                  border: InputBorder.none,
+                  fillColor: Color(0xfff3f3f4),
+                  filled: true,
+                ),
+              ),
+              if (title == "Password")
+                Positioned(
+                  right: 0,
+                  top: 0,
+                  bottom: 0,
+                  child: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        isVisible = !isVisible;
+                      });
+                    },
+                    icon: Icon(
+                      isVisible ? Icons.visibility : Icons.visibility_off,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+            ],
+          )
+        ],
+      ),
+    );
+  }
 
-  const TextInput({
-    Key? key,
-    required this.textString,
-    required this.textController,
-    required this.hint,
-    this.obscureText = false,
-  }) : super(key: key);
+  Widget _submitButton() {
+    return GestureDetector(
+      onTap: isButtonEnabled
+          ? () {
+              if (textController.text.isEmpty || emailController.text.isEmpty) {
+                EasyLoading.showToast(
+                  'Fill all fields!',
+                  toastPosition: EasyLoadingToastPosition.bottom,
+                );
+              } else {
+                setState(() {
+                  isButtonEnabled = false;
+                });
+                _login();
+              }
+            }
+          : null,
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(5)),
+            boxShadow: <BoxShadow>[
+              BoxShadow(
+                  color: Colors.grey.shade200,
+                  offset: const Offset(2, 4),
+                  blurRadius: 5,
+                  spreadRadius: 2)
+            ],
+            color: isButtonEnabled
+                ? Color(schoolcolor)
+                : const Color.fromARGB(255, 209, 208, 208)),
+        child: Text(
+          'Login',
+          style: GoogleFonts.poppins(
+              fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
 
-  @override
-  State<TextInput> createState() => _TextInputState();
-}
-
-class _TextInputState extends State<TextInput> {
-  bool showPassword = false;
-  var spctColor = const Color.fromARGB(255, 7, 5, 102);
-  var spctColor2 = const Color.fromARGB(255, 7, 5, 191);
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      style: const TextStyle(color: Color(0xFF000000)),
-      cursorColor: spctColor,
-      controller: widget.textController,
-      keyboardType: TextInputType.text,
-      obscureText: widget.obscureText && !showPassword,
-      decoration: InputDecoration(
-        enabledBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: spctColor2,
-          ),
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      body: Center(
+        child: LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
+            // Determine whether the layout width is wider than a threshold (e.g., 600)
+            bool isWideScreen = constraints.maxWidth > 700;
+            bool isWider = constraints.maxWidth > 600;
+            return Container(
+              constraints: BoxConstraints(
+                maxHeight: isWideScreen ? 700 : double.infinity,
+                maxWidth: isWideScreen ? 700 : double.infinity,
+              ), // Set max width for larger screens
+              decoration: isWideScreen
+                  ? BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          offset: const Offset(0.0, 0.0),
+                          blurRadius: isWideScreen ? 25 : 15.0,
+                          spreadRadius: isWideScreen ? 10 : 4.0,
+                        )
+                      ],
+                    )
+                  : null,
+              width: isWideScreen ? constraints.maxWidth / 2 : null,
+              padding: EdgeInsets.symmetric(
+                  horizontal: isWideScreen
+                      ? 100
+                      : isWider
+                          ? 70
+                          : 30),
+              alignment: Alignment.center,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    schoollogo.isNotEmpty
+                        ? CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Colors.white,
+                            child: CircleAvatar(
+                              backgroundColor: const Color(0xFFD5F6FF),
+                              backgroundImage: NetworkImage('$host$schoollogo'),
+                              radius: 60,
+                            ),
+                          )
+                        : const CircleAvatar(
+                            radius: 60,
+                            backgroundColor: Colors.white,
+                            child: CircularProgressIndicator(),
+                          ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Text(
+                      schoolname,
+                      style: GoogleFonts.prompt(
+                        textStyle: TextStyle(
+                          color: Color(schoolcolor),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 24,
+                        ),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    Text(
+                      schooladdress,
+                      style: GoogleFonts.prompt(
+                        textStyle: const TextStyle(
+                          color: Colors.black87,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    _emailPasswordWidget(),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    _submitButton(),
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      alignment: Alignment.centerRight,
+                      child: GestureDetector(
+                        child: Text('Forgot Password ?',
+                            style: GoogleFonts.poppins(
+                                fontSize: 14, fontWeight: FontWeight.w500)),
+                        onTap: () {
+                          EasyLoading.showInfo(
+                              'Please inform the school authority or your teacher for further assistance.');
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(
-            color: spctColor,
-          ),
-        ),
-        hintText: widget.textString,
-        hintStyle: const TextStyle(
-          color: Color(0xFF9b9b9b),
-          fontSize: 15,
-          fontWeight: FontWeight.normal,
-        ),
-        suffixIcon: widget.textString.toLowerCase() == "password"
-            ? IconButton(
-                icon: Icon(
-                    showPassword ? Icons.visibility_off : Icons.visibility),
-                onPressed: () {
-                  setState(() {
-                    showPassword = !showPassword;
-                  });
-                },
-              )
-            : null,
       ),
     );
   }

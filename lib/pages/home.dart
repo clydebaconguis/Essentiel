@@ -1,10 +1,13 @@
+import 'package:essentiel/api/my_api.dart';
 import 'package:essentiel/provider/navigation_provider.dart';
 import 'package:essentiel/widget/navigation_drawer_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-
-import 'dash.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
+import 'package:essentiel/pages/dash.dart';
+// import 'package:http/http.dart' as http;
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -37,95 +40,13 @@ class Homepage extends StatefulWidget {
   State<Homepage> createState() => _HomepageState();
 }
 
-class BillingAssessmentInfo {
-  final String particulars;
-  final String amount;
-  final String balance;
-  final String duedate;
-
-  BillingAssessmentInfo({
-    required this.particulars,
-    required this.amount,
-    required this.balance,
-    required this.duedate,
-  });
-
-  factory BillingAssessmentInfo.fromJson(Map json) {
-    var particulars = json['particulars'] ?? '';
-    var amount = json['amount'] ?? '';
-    var balance = json['balance'] ?? '';
-    var duedate = json['duedate'] ?? '';
-    return BillingAssessmentInfo(
-        particulars: particulars,
-        amount: amount,
-        duedate: duedate,
-        balance: balance);
-  }
-}
-
-class EnrollmentInfo {
-  final int syid;
-  final int levelid;
-  final int sectionid;
-  final String sydesc;
-  final String levelname;
-  final String sectionname;
-  final int semid;
-  final String dateenrolled;
-  final int isactive;
-  final int strandid;
-  final String semester;
-  final String strandcode;
-
-  EnrollmentInfo({
-    required this.levelid,
-    required this.sectionid,
-    required this.syid,
-    required this.sydesc,
-    required this.levelname,
-    required this.sectionname,
-    required this.semid,
-    required this.dateenrolled,
-    required this.isactive,
-    required this.strandid,
-    required this.semester,
-    required this.strandcode,
-  });
-
-  factory EnrollmentInfo.fromJson(Map json) {
-    var syid = json['syid'] ?? 0;
-    var levelid = json['levelid'] ?? 0;
-    var sectionid = json['sectionid'] ?? 0;
-    var sydesc = json['sydesc'] ?? '';
-    var levelname = json['levelname'] ?? '';
-    var sectionname = json['sectionname'] ?? '';
-    var semid = json['semid'] ?? 0;
-    var dateenrolled = json['dateenrolled'] ?? '';
-    var isactive = json['isactive'] ?? 0;
-    var strandid = json['strandid'] ?? 0;
-    var semester = json['semester'] ?? '';
-    var strandcode = json['strandcode'] ?? '';
-    return EnrollmentInfo(
-      syid: syid,
-      sydesc: sydesc,
-      levelname: levelname,
-      sectionname: sectionname,
-      semid: semid,
-      dateenrolled: dateenrolled,
-      levelid: levelid,
-      sectionid: sectionid,
-      isactive: isactive,
-      strandid: strandid,
-      semester: semester,
-      strandcode: strandcode,
-    );
-  }
-}
-
 class _HomepageState extends State<Homepage> {
   // Widget currentPage = const Dash(updateData: (const ClassSchedPage(),""));
   late Widget currentPage;
+  var schoolcolor = 0;
   String pageName = 'Dashboard';
+  String schoollogo = '';
+  String host = CallApi().getImage();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   void _openDrawer() {
@@ -141,70 +62,109 @@ class _HomepageState extends State<Homepage> {
 
   @override
   void initState() {
+    changeStatusBarColor();
+    getSchoolInfo();
     currentPage = Dash(
       updateData: updateData,
     );
     super.initState();
   }
 
+  changeStatusBarColor() async {
+    await FlutterStatusbarcolor.setStatusBarColor(Color(schoolcolor));
+    if (useWhiteForeground(Color(schoolcolor))) {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+    } else {
+      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+    }
+  }
+
+  getSchoolInfo() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    setState(() {
+      schoolcolor = localStorage.getInt('schoolcolor') ?? 0;
+      schoollogo = localStorage.getString('schoollogo') ?? '';
+    });
+    if (schoolcolor > 0) {
+      changeStatusBarColor();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    var spctColor = const Color.fromARGB(255, 7, 5, 102);
     return SafeArea(
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        drawer: NavigationDrawerWidget(updateData: updateData),
-        key: _scaffoldKey,
-        appBar: AppBar(
-          shadowColor: Colors.white38,
-          toolbarHeight: 65,
-          titleSpacing: 0,
-          elevation: 4.0,
-          backgroundColor: Colors.white,
-          leading: IconButton(
-            icon: const Icon(
-              Icons.menu,
-              color: Colors.black, // Set the color of the icon
-            ),
-            onPressed: _openDrawer,
-          ),
-          title: Padding(
-            padding: const EdgeInsets.only(
-                right: 14), // Add desired padding on the right side
-            child: Row(
-              children: [
-                const CircleAvatar(
-                  radius: 23,
-                  backgroundImage: AssetImage("images/spctLogo.jpg"),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    pageName,
-                    style: GoogleFonts.prompt(
-                      fontSize: 22,
-                      color: spctColor,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          var isWide = constraints.maxWidth > 800;
+          return Scaffold(
+              backgroundColor: Colors.white,
+              drawer: !isWide
+                  ? NavigationDrawerWidget(updateData: updateData)
+                  : null,
+              key: _scaffoldKey,
+              appBar: AppBar(
+                shadowColor: Colors.white38,
+                toolbarHeight: 65,
+                titleSpacing: 0,
+                elevation: 4.0,
+                backgroundColor: Colors.white,
+                leading: !isWide
+                    ? IconButton(
+                        icon: const Icon(
+                          Icons.menu,
+                          color: Colors.black, // Set the color of the icon
+                        ),
+                        onPressed: _openDrawer,
+                      )
+                    : null,
+                title: Padding(
+                  padding: const EdgeInsets.only(
+                      right: 14), // Add desired padding on the right side
+                  child: Row(
+                    children: [
+                      if (schoollogo.isNotEmpty)
+                        CircleAvatar(
+                          backgroundColor: Colors.white,
+                          radius: 23,
+                          // backgroundImage: AssetImage("images/spctLogo.jpg"),
+                          backgroundImage: NetworkImage('$host$schoollogo'),
+                        ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          pageName,
+                          style: GoogleFonts.prompt(
+                            fontSize: 22,
+                            color: schoolcolor > 0
+                                ? Color(schoolcolor)
+                                : Colors.indigo,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-        body: Padding(
-          padding: const EdgeInsets.only(top: 20, right: 5, left: 5),
-          child: currentPage ==
-                  Dash(
-                    updateData: updateData,
+              ),
+              body: Row(
+                children: [
+                  if (constraints.maxWidth > 1000)
+                    NavigationDrawerWidget(updateData: updateData),
+                  Expanded(
+                    child: currentPage ==
+                            Dash(
+                              updateData: updateData,
+                            )
+                        ? Dash(
+                            updateData: updateData,
+                          )
+                        : currentPage,
                   )
-              ? Dash(
-                  updateData: updateData,
-                )
-              : currentPage,
-        ),
+                ],
+              ));
+        },
       ),
     );
   }

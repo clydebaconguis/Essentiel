@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:http/http.dart' as http;
+// import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:essentiel/api/my_api.dart';
 import 'package:essentiel/data/drawer_items.dart';
@@ -21,8 +21,7 @@ import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:google_fonts/google_fonts.dart';
-
-import '../pages/dash.dart';
+import 'package:essentiel/pages/dash.dart';
 
 class NavigationDrawerWidget extends StatefulWidget {
   final Function(Widget, String) updateData;
@@ -33,17 +32,19 @@ class NavigationDrawerWidget extends StatefulWidget {
 }
 
 class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
-  String host = CallApi().getImage();
-  String selectedNav = ''; // Example: set the initial selected index
-  final padding = const EdgeInsets.symmetric(horizontal: 20);
   User user = UserData.myUser;
+  String host = CallApi().getImage();
+  String selectedNav = '';
   bool isValid = false;
-  var spctColor = const Color.fromARGB(255, 7, 5, 102);
+  var schoolcolor = 0;
+  var schoolabbv = '';
+  var schoollogo = '';
+  bool isExpanded = false;
+
   @override
   void initState() {
     getUser();
     getProviderFiles();
-    isImageUrlValid();
     super.initState();
   }
 
@@ -51,37 +52,58 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     final json = preferences.getString('user');
 
-    setState(() {
-      user = User.fromJson(jsonDecode(json!));
-    });
+    if (mounted) {
+      setState(() {
+        user = User.fromJson(jsonDecode(json!));
+        schoolcolor = preferences.getInt('schoolcolor') ?? 0;
+        schoolabbv = preferences.getString('schoolabbv') ?? '';
+        schoollogo = filterImage(preferences.getString('schoollogo'));
+      });
+    }
+  }
+
+  filterImage(url) {
+    int questionMarkIndex = url.indexOf("?");
+
+    if (questionMarkIndex != -1) {
+      // Remove everything starting from the question mark
+      String newUrl = url.substring(0, questionMarkIndex);
+
+      // print("New URL: $newUrl");
+      return newUrl;
+    } else {
+      // If there is no question mark in the URL
+      // print("URL doesn't contain a question mark");
+      return url;
+    }
   }
 
   navigateToSignIn() {
-    Timer(const Duration(seconds: 1), () {
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(
-            builder: (context) => const SignIn(),
-          ),
-          (Route<dynamic> route) => false);
-      EasyLoading.dismiss();
-    });
+    EasyLoading.showSuccess('Logged out');
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: (context) => const SignIn(),
+      ),
+      (Route<dynamic> route) => false,
+    );
   }
 
   logout() async {
-    EasyLoading.show(status: 'Signing out...');
     SharedPreferences localStorage = await SharedPreferences.getInstance();
     await localStorage.clear();
     navigateToSignIn();
   }
 
-  getProviderFiles() {
+  getProviderFiles() async {
     final provider = Provider.of<NavigationProvider>(context, listen: false);
-    setState(() {
-      var link = provider.activeNav;
-      if (link.isNotEmpty) {
-        selectedNav = link;
-      }
-    });
+    if (mounted) {
+      setState(() {
+        var link = provider.activeNav;
+        if (link.isNotEmpty) {
+          selectedNav = link;
+        }
+      });
+    }
   }
 
   @override
@@ -90,183 +112,229 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
         EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top);
     final provider = Provider.of<NavigationProvider>(context);
     var isCollapsed = provider.isCollapsed;
-
-    return SizedBox(
+    setState(() {
+      isExpanded = provider.isExpanded;
+    });
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            Colors.white, // Lighter shade of green
+            Color(schoolcolor), // Darker shade of green
+          ],
+          begin: Alignment.topRight,
+          end: Alignment.bottomLeft,
+        ),
+      ),
       width: isCollapsed ? MediaQuery.of(context).size.width * 0.2 : null,
-      child: Drawer(
-        child: SingleChildScrollView(
-          child: SizedBox(
-            height: MediaQuery.of(context).size.height,
-            child: ListView(
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 0).add(safeArea),
-                  width: double.infinity,
-                  // color: Colors.white12,
-                  child: buildHeader(isCollapsed),
-                ),
-                const Divider(
-                    // color: Colors.black26,
+      child: LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+          var isWide = constraints.maxWidth > 800;
+          return Drawer(
+            backgroundColor: Colors.transparent,
+            shadowColor: Colors.transparent,
+            child: SingleChildScrollView(
+              child: SizedBox(
+                height: MediaQuery.of(context).size.height,
+                child: ListView(
+                  children: [
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(vertical: 0).add(safeArea),
+                      width: double.infinity,
+                      // color: Colors.white12,
+                      child: !isWide && schoollogo.isNotEmpty
+                          ? buildHeader(isCollapsed)
+                          : null,
                     ),
-                buildProfileCircle(isCollapsed),
-                const SizedBox(height: 20),
-                const Divider(
-                  color: Colors.black26,
-                ),
-                const SizedBox(height: 20),
-                buildList(items: itemsFirst, isCollapsed: isCollapsed),
-                ListTile(
-                  title: !isCollapsed
-                      ? ExpansionTile(
-                          backgroundColor: Colors.transparent,
-                          iconColor: Colors.black,
-                          collapsedIconColor: Colors.black,
-                          title: Text(
-                            'See more',
-                            style: GoogleFonts.prompt(
-                                color: Colors.black, fontSize: 16),
-                          ),
-                          children: itemFirstContinuation
-                              .asMap()
-                              .entries
-                              .map((entry) {
-                            final index = entry.key;
-                            final item = entry.value;
-                            return ListTile(
-                              tileColor: selectedNav == item.title
-                                  ? spctColor
-                                  : Colors.transparent,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(5),
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.only(left: 20),
-                              leading: Icon(
-                                item.icon,
-                                color: selectedNav == item.title
-                                    ? Colors.white
-                                    : Colors.black87,
-                              ),
-                              title: Text(
-                                item.title,
-                                style: GoogleFonts.prompt(
-                                    color: selectedNav == item.title
-                                        ? Colors.white
-                                        : Colors.black87,
-                                    fontSize: 17,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                              onTap: () {
-                                selectItem2(context, index);
+                    const Divider(),
+                    if (user.picurl.isNotEmpty) buildProfileCircle(isCollapsed),
+                    const SizedBox(height: 20),
+                    const Divider(
+                      color: Colors.black26,
+                    ),
+                    const SizedBox(height: 20),
+                    buildList(items: itemsFirst, isCollapsed: isCollapsed),
+                    ListTile(
+                      tileColor: Colors.transparent,
+                      title: !isCollapsed
+                          ? ExpansionTile(
+                              onExpansionChanged: (bool expanded) {
                                 setState(() {
-                                  selectedNav =
-                                      item.title; // Update the selected index
-                                  final provider =
-                                      Provider.of<NavigationProvider>(context,
-                                          listen: false);
-                                  provider.setActiveNav(item.title);
+                                  isExpanded = expanded;
+                                  provider.toggleExpanded();
                                 });
                               },
-                              selected: selectedNav == item.title,
-                              selectedTileColor: spctColor,
-                              focusColor:
-                                  spctColor, // Added this line to set focus color
-                              hoverColor:
-                                  spctColor, // Added this line to set hover color
-                            );
-                          }).toList(),
-                        )
-                      : null,
-                ),
-                const SizedBox(height: 20),
-                const Divider(
-                  color: Colors.black26,
-                ),
-                buildLogout(items: itemsFirst2, isCollapsed: isCollapsed),
-                const SizedBox(height: 20),
-                !isCollapsed
-                    ? Center(
-                        child: Container(
-                          alignment: Alignment.center,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.copyright_outlined,
-                                color: Colors.black45,
-                                size: 18.0,
+                              initiallyExpanded: isExpanded,
+                              collapsedBackgroundColor: Colors.transparent,
+                              tilePadding: EdgeInsets.zero,
+                              backgroundColor: Colors.transparent,
+                              iconColor: Colors.black,
+                              collapsedIconColor: Colors.black,
+                              title: Text(
+                                'See more',
+                                style: GoogleFonts.prompt(
+                                    color: Colors.black, fontSize: 16),
                               ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              const Text(
-                                'Copyright 2023',
-                                style: TextStyle(
-                                    color: Colors.black45, fontSize: 12),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              const Text(
-                                'Powered by',
-                                style: TextStyle(
-                                    color: Colors.black45, fontSize: 12),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              CircleAvatar(
-                                radius: 15,
-                                backgroundColor: Colors.transparent,
-                                child: Image.asset(
-                                  "images/cklogo.png",
-                                  height: 25,
+                              children: [
+                                Builder(
+                                  builder: (BuildContext childContext) {
+                                    return Column(
+                                      children: itemFirstContinuation
+                                          .asMap()
+                                          .entries
+                                          .map((entry) {
+                                        final index = entry.key;
+                                        final item = entry.value;
+                                        return ListTile(
+                                          tileColor: selectedNav == item.title
+                                              ? Color(schoolcolor)
+                                              : null,
+                                          shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(5),
+                                            ),
+                                          ),
+                                          contentPadding:
+                                              const EdgeInsets.only(left: 20),
+                                          leading: Icon(
+                                            item.icon,
+                                            color: selectedNav == item.title
+                                                ? Colors.white
+                                                : Colors.black87,
+                                          ),
+                                          title: Text(
+                                            item.title,
+                                            style: GoogleFonts.prompt(
+                                              color: selectedNav == item.title
+                                                  ? Colors.white
+                                                  : Colors.black87,
+                                              fontSize: 17,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                          onTap: () {
+                                            selectItem2(
+                                                context, index, item.title);
+                                            if (mounted) {
+                                              setState(() {
+                                                selectedNav = item
+                                                    .title; // Update the selected index
+                                                final provider = Provider.of<
+                                                        NavigationProvider>(
+                                                    context,
+                                                    listen: false);
+                                                provider
+                                                    .setActiveNav(item.title);
+                                              });
+                                            }
+                                          },
+                                          selected: selectedNav == item.title,
+                                          selectedTileColor: Color(schoolcolor),
+                                          focusColor: Color(schoolcolor),
+                                          hoverColor: Color(schoolcolor),
+                                        );
+                                      }).toList(),
+                                    );
+                                  },
                                 ),
-                              ),
-                              const SizedBox(
-                                width: 8,
-                              ),
-                              buildCollapseIcon(context, isCollapsed),
-                            ],
-                          ),
-                        ),
-                      )
-                    : CircleAvatar(
-                        radius: 15,
-                        backgroundColor: Colors.transparent,
-                        child: Image.asset(
-                          "images/cklogo.png",
-                          height: 25,
-                        ),
-                      ),
-                isCollapsed
-                    ? buildCollapseIcon(context, isCollapsed)
-                    : const SizedBox(height: 0),
-                const SizedBox(height: 50),
+                              ],
+                            )
+                          : null,
+                    ),
 
-                // buildCollapseIcon(context, isCollapsed),
-              ],
+                    const SizedBox(height: 20),
+                    const Divider(
+                      color: Colors.black26,
+                    ),
+                    buildLogout(items: itemsFirst2, isCollapsed: isCollapsed),
+                    const SizedBox(height: 20),
+                    !isCollapsed
+                        ? Center(
+                            child: Container(
+                              alignment: Alignment.center,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  const Icon(
+                                    Icons.copyright_outlined,
+                                    color: Colors.black45,
+                                    size: 18.0,
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  const Text(
+                                    'Copyright 2023',
+                                    style: TextStyle(
+                                        color: Colors.black45, fontSize: 12),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(
+                                    width: 10,
+                                  ),
+                                  const Text(
+                                    'Powered by',
+                                    style: TextStyle(
+                                        color: Colors.black45, fontSize: 12),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  CircleAvatar(
+                                    radius: 15,
+                                    backgroundColor: Colors.transparent,
+                                    child: Image.asset(
+                                      "images/cklogo.png",
+                                      height: 25,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  buildCollapseIcon(context, isCollapsed),
+                                ],
+                              ),
+                            ),
+                          )
+                        : CircleAvatar(
+                            radius: 15,
+                            backgroundColor: Colors.transparent,
+                            child: Image.asset(
+                              "images/cklogo.png",
+                              height: 25,
+                            ),
+                          ),
+                    isCollapsed
+                        ? buildCollapseIcon(context, isCollapsed)
+                        : const SizedBox(height: 0),
+                    const SizedBox(height: 50),
+
+                    // buildCollapseIcon(context, isCollapsed),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }
 
-  void selectItem2(BuildContext context, int index) {
-    // navigateTo(page) => Navigator.of(context).pushAndRemoveUntil(
-    //       MaterialPageRoute(
-    //         builder: (context) => page,
-    //       ),
-    //       (Route<dynamic> route) => false,
-    //     );
-    //
-    // Navigator.of(context).pop();
+  void selectItem2(BuildContext context, int index, String title) {
+    if (mounted) {
+      setState(() {
+        selectedNav = title;
+        final provider =
+            Provider.of<NavigationProvider>(context, listen: false);
+
+        provider.setActiveNav(title);
+      });
+    }
+
+    Navigator.of(context).pop();
 
     switch (index) {
       case 0:
@@ -289,20 +357,6 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     }
   }
 
-  // onClick(path) {
-  // Navigator.of(context).pushAndRemoveUntil(
-  //     MaterialPageRoute(
-  //       builder: (context) => MyNav2(
-  //         path: path,
-  //         books: PdfTile(),
-  //       ),
-  //     ),
-  //     (Route<dynamic> route) => false);
-  // print(path);
-  // }
-
-  // Pdf Tile
-
   // Main Nav tile
   Widget buildList({
     required bool isCollapsed,
@@ -310,7 +364,9 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     int indexOffset = 0,
   }) =>
       ListView.separated(
-        padding: isCollapsed ? EdgeInsets.zero : padding,
+        padding: isCollapsed
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(horizontal: 20),
         shrinkWrap: true,
         primary: false,
         itemCount: items.length,
@@ -329,20 +385,17 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
       );
 
   void selectItem(BuildContext context, int index, String title) {
-    setState(() {
-      print(title);
-      selectedNav = title;
-      final provider = Provider.of<NavigationProvider>(context, listen: false);
+    if (mounted) {
+      setState(() {
+        selectedNav = title;
+        final provider =
+            Provider.of<NavigationProvider>(context, listen: false);
 
-      provider.setActiveNav(title);
-    });
-    // navigateTo(page) => Navigator.of(context).pushAndRemoveUntil(
-    //       MaterialPageRoute(
-    //         builder: (context) => page,
-    //       ),
-    //       (Route<dynamic> route) => false,
-    //     );
+        provider.setActiveNav(title);
+      });
+    }
 
+    Navigator.of(context).pop();
     switch (index) {
       case 0:
         widget.updateData(Dash(updateData: widget.updateData), "Dashboard");
@@ -376,7 +429,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(5))),
               selected: selectedNav.toLowerCase() == text.toLowerCase(),
-              selectedTileColor: spctColor,
+              selectedTileColor: Color(schoolcolor),
               title: Icon(icon,
                   color: selectedNav == text ? Colors.white : Colors.black87),
             )
@@ -384,7 +437,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(5))),
               selected: selectedNav == text,
-              selectedTileColor: spctColor,
+              selectedTileColor: Color(schoolcolor),
               leading: Icon(icon,
                   color: selectedNav == text ? Colors.white : Colors.black87),
               title: Text(
@@ -435,37 +488,108 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     );
   }
 
-  Widget buildHeader(bool isCollapsed) => isCollapsed
-      ? Container(
-          padding: const EdgeInsets.only(bottom: 22, top: 22),
-          child: const Image(
-            width: 50,
-            height: 50,
-            image: AssetImage("images/spctLogo.jpg"),
+  Widget buildHeader(bool isCollapsed) {
+    try {
+      if (isCollapsed) {
+        return Container(
+          padding: const EdgeInsets.only(bottom: 10, top: 20),
+          child: CircleAvatar(
+            backgroundColor: Colors.red,
+            radius: 23,
+            child: CircleAvatar(
+              backgroundColor: Colors.white,
+              radius: 23,
+              // backgroundImage: AssetImage("images/spctLogo.jpg"),
+              backgroundImage: NetworkImage('$host$schoollogo'),
+            ),
           ),
-        )
-      : Container(
+        );
+      } else {
+        return Container(
           padding: const EdgeInsets.only(bottom: 10, top: 20),
           child: Row(
             children: [
               const SizedBox(width: 24),
-              const Image(
-                width: 50,
-                height: 50,
-                image: AssetImage("images/spctLogo.jpg"),
+              CircleAvatar(
+                backgroundColor: Colors.white,
+                radius: 25,
+                child: CircleAvatar(
+                  backgroundColor: Colors.white,
+                  radius: 25,
+                  // backgroundImage: AssetImage("images/spctLogo.jpg"),
+                  backgroundImage: NetworkImage('$host$schoollogo'),
+                ),
               ),
               const SizedBox(width: 16),
               Text(
-                'SPCT',
+                schoolabbv,
                 style: GoogleFonts.prompt(
                   fontSize: 25,
-                  color: spctColor,
+                  color: Color(schoolcolor),
                   fontWeight: FontWeight.bold,
                 ),
               ),
             ],
           ),
         );
+      }
+    } catch (error) {
+      // Handle the error here
+      // print('Error loading image: $error');
+      // You can return an alternative widget or display an error message here
+      return Container(
+        padding: const EdgeInsets.only(bottom: 10, top: 20),
+        child: const Text('Error loading image'),
+      );
+    }
+  }
+
+  Future<void> showLogoutConfirmationDialog(BuildContext context) async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Logout',
+            style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+          ),
+          content: Text(
+            'Are you sure you want to log out?',
+            style: GoogleFonts.poppins(),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                // Close the dialog and do nothing (cancel logout)
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+                style: GoogleFonts.poppins(
+                    fontWeight: FontWeight.bold, color: Colors.red),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Close the dialog and perform logout
+                Navigator.of(context).pop();
+                logout();
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (context) => const SignIn(),
+                    ),
+                    (Route<dynamic> route) => false);
+              },
+              child: Text(
+                'Logout',
+                style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget buildLogout({
     required bool isCollapsed,
@@ -473,7 +597,9 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     int indexOffset = 0,
   }) =>
       ListView.separated(
-        padding: isCollapsed ? EdgeInsets.zero : padding,
+        padding: isCollapsed
+            ? EdgeInsets.zero
+            : const EdgeInsets.symmetric(horizontal: 20),
         shrinkWrap: true,
         primary: false,
         itemCount: items.length,
@@ -485,31 +611,15 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               isCollapsed: isCollapsed,
               text: item.title,
               icon: item.icon,
-              onClicked: () => logout());
+              onClicked: () => showLogoutConfirmationDialog(context));
         },
       );
-  void isImageUrlValid() async {
-    if (!isValid) {
-      try {
-        final response = await http.head(Uri.parse('$host${user.picurl}'));
-        setState(() {
-          isValid = response.statusCode == 200;
-        });
-      } catch (e) {
-        setState(() {
-          isValid =
-              false; // An error occurred, so the URL is considered invalid
-        });
-      }
-    }
-  }
 
   Widget buildProfileCircle(bool isCollapsed) => Column(
         children: [
           const SizedBox(height: 24),
           Stack(
             children: [
-              // if (isValid)
               CachedNetworkImage(
                 imageUrl: "$host${user.picurl}",
                 imageBuilder: (context, imageProvider) => CircleAvatar(
@@ -518,6 +628,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                 ),
                 placeholder: (context, url) => Center(
                   child: CircleAvatar(
+                    backgroundColor: Color(schoolcolor),
                     radius: isCollapsed ? 30 : 40,
                     child: const CircularProgressIndicator(),
                   ),
@@ -527,12 +638,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                   radius: isCollapsed ? 30 : 40,
                   backgroundImage: const AssetImage("images/anonymous.jpg"),
                 ),
-              ),
-              // if (!isValid)
-              //   CircleAvatar(
-              //     radius: isCollapsed ? 30 : 40,
-              //     child: const CircularProgressIndicator(),
-              //   ),
+              )
             ],
           ),
           const SizedBox(height: 20),
@@ -545,7 +651,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                     .toUpperCase(),
                 style: GoogleFonts.prompt(
                   fontSize: 20,
-                  color: spctColor,
+                  color: Color(schoolcolor),
                   fontWeight: FontWeight.bold,
                 ),
               ),
