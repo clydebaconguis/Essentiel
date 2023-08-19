@@ -240,16 +240,33 @@ class _SchoolCalendarState extends State<SchoolCalendar> {
                   ),
             events.isNotEmpty
                 ? Expanded(
-                    child: ListView.builder(
-                      itemCount: events.length,
-                      itemBuilder: (context, index) {
-                        Event event = events[index];
-                        return ListTile(
-                          title: Text(event.title),
-                          subtitle: Text(event.venue),
-                          trailing: Text(event.time),
-                        );
-                      },
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          alignment: Alignment.centerLeft,
+                          child: const Text(
+                            "Events",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: ListView.builder(
+                            itemCount: events.length,
+                            itemBuilder: (context, index) {
+                              Event event = events[index];
+                              return ListTile(
+                                title: Text(event.title),
+                                subtitle: Text(event.venue),
+                                trailing: Text(event.time),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
                     ),
                   )
                 : const SizedBox(

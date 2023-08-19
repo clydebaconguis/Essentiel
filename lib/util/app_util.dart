@@ -1,3 +1,7 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
+
 class AppUtil {
   int hexToColor(String hexString) {
     // Remove any leading # symbol
@@ -16,5 +20,20 @@ class AppUtil {
 
     // Create a Color object from the integer value
     return colorValue;
+  }
+
+  void changeStatusBarColor(schoolcolor) async {
+    try {
+      await FlutterStatusbarcolor.setStatusBarColor(Color(schoolcolor));
+      if (useWhiteForeground(Color(schoolcolor))) {
+        FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
+      } else {
+        FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
+      }
+    } on PlatformException catch (e) {
+      if (kDebugMode) {
+        print("Failed to change status bar color on web: $e");
+      }
+    }
   }
 }

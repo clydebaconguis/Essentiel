@@ -77,30 +77,32 @@ class _AttendanceState extends State<Attendance> {
 
   getAttendance() async {
     await CallApi().getAttendance(id, syid, levelid).then((response) {
-      setState(() {
-        events.clear();
-        selectedEvent = CustomEvent(
-            isPresent: 0,
-            subject: '',
-            startTime: DateTime.now(),
-            endTime: DateTime.now(),
-            color: Colors.white);
-        Iterable ll = jsonDecode(response.body);
-        // print(ll);
-        events = ll.map((data) {
-          String tdate = data['tdate'];
-          DateTime dateTime = DateTime.parse(tdate);
+      if (mounted) {
+        setState(() {
+          events.clear();
+          selectedEvent = CustomEvent(
+              isPresent: 0,
+              subject: '',
+              startTime: DateTime.now(),
+              endTime: DateTime.now(),
+              color: Colors.white);
+          Iterable ll = jsonDecode(response.body);
+          // print(ll);
+          events = ll.map((data) {
+            String tdate = data['tdate'];
+            DateTime dateTime = DateTime.parse(tdate);
 
-          return CustomEvent(
-            isPresent: data['present'],
-            subject: data['attday'],
-            startTime: dateTime,
-            endTime: dateTime.add(const Duration(days: 1)),
-            color: Colors.blue,
-            // Customize the event color as per your preference
-          );
-        }).toList();
-      });
+            return CustomEvent(
+              isPresent: data['present'],
+              subject: data['attday'],
+              startTime: dateTime,
+              endTime: dateTime.add(const Duration(days: 1)),
+              color: Colors.blue,
+              // Customize the event color as per your preference
+            );
+          }).toList();
+        });
+      }
     });
   }
 

@@ -3,6 +3,7 @@ import 'dart:convert';
 // import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:essentiel/api/my_api.dart';
+import 'package:essentiel/components/copyright.dart';
 import 'package:essentiel/data/drawer_items.dart';
 import 'package:essentiel/models/drawer_item.dart';
 import 'package:essentiel/pages/attendance.dart';
@@ -24,8 +25,13 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:essentiel/pages/dash.dart';
 
 class NavigationDrawerWidget extends StatefulWidget {
+  final String activenav;
   final Function(Widget, String) updateData;
-  const NavigationDrawerWidget({super.key, required this.updateData});
+  const NavigationDrawerWidget({
+    super.key,
+    required this.updateData,
+    required this.activenav,
+  });
 
   @override
   State<NavigationDrawerWidget> createState() => _NavigationDrawerWidgetState();
@@ -112,218 +118,213 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
         EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top);
     final provider = Provider.of<NavigationProvider>(context);
     var isCollapsed = provider.isCollapsed;
-    setState(() {
-      isExpanded = provider.isExpanded;
-    });
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            Colors.white, // Lighter shade of green
-            Color(schoolcolor), // Darker shade of green
-          ],
-          begin: Alignment.topRight,
-          end: Alignment.bottomLeft,
-        ),
-      ),
-      width: isCollapsed ? MediaQuery.of(context).size.width * 0.2 : null,
-      child: LayoutBuilder(
+    if (mounted) {
+      setState(() {
+        isExpanded = provider.isExpanded;
+      });
+    }
+
+    return LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          var isWide = constraints.maxWidth > 800;
-          return Drawer(
-            backgroundColor: Colors.transparent,
-            shadowColor: Colors.transparent,
-            child: SingleChildScrollView(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height,
-                child: ListView(
-                  children: [
-                    Container(
-                      padding:
-                          const EdgeInsets.symmetric(vertical: 0).add(safeArea),
-                      width: double.infinity,
-                      // color: Colors.white12,
-                      child: !isWide && schoollogo.isNotEmpty
-                          ? buildHeader(isCollapsed)
-                          : null,
-                    ),
-                    const Divider(),
-                    if (user.picurl.isNotEmpty) buildProfileCircle(isCollapsed),
-                    const SizedBox(height: 20),
-                    const Divider(
-                      color: Colors.black26,
-                    ),
-                    const SizedBox(height: 20),
-                    buildList(items: itemsFirst, isCollapsed: isCollapsed),
-                    ListTile(
-                      tileColor: Colors.transparent,
-                      title: !isCollapsed
-                          ? ExpansionTile(
-                              onExpansionChanged: (bool expanded) {
-                                setState(() {
-                                  isExpanded = expanded;
-                                  provider.toggleExpanded();
-                                });
-                              },
-                              initiallyExpanded: isExpanded,
-                              collapsedBackgroundColor: Colors.transparent,
-                              tilePadding: EdgeInsets.zero,
-                              backgroundColor: Colors.transparent,
-                              iconColor: Colors.black,
-                              collapsedIconColor: Colors.black,
-                              title: Text(
-                                'See more',
-                                style: GoogleFonts.prompt(
-                                    color: Colors.black, fontSize: 16),
-                              ),
-                              children: [
-                                Builder(
-                                  builder: (BuildContext childContext) {
-                                    return Column(
-                                      children: itemFirstContinuation
-                                          .asMap()
-                                          .entries
-                                          .map((entry) {
-                                        final index = entry.key;
-                                        final item = entry.value;
-                                        return ListTile(
-                                          tileColor: selectedNav == item.title
-                                              ? Color(schoolcolor)
-                                              : null,
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.all(
-                                              Radius.circular(5),
-                                            ),
-                                          ),
-                                          contentPadding:
-                                              const EdgeInsets.only(left: 20),
-                                          leading: Icon(
-                                            item.icon,
-                                            color: selectedNav == item.title
-                                                ? Colors.white
-                                                : Colors.black87,
-                                          ),
-                                          title: Text(
-                                            item.title,
-                                            style: GoogleFonts.prompt(
-                                              color: selectedNav == item.title
-                                                  ? Colors.white
-                                                  : Colors.black87,
-                                              fontSize: 17,
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                          ),
-                                          onTap: () {
-                                            selectItem2(
-                                                context, index, item.title);
-                                            if (mounted) {
-                                              setState(() {
-                                                selectedNav = item
-                                                    .title; // Update the selected index
-                                                final provider = Provider.of<
-                                                        NavigationProvider>(
-                                                    context,
-                                                    listen: false);
-                                                provider
-                                                    .setActiveNav(item.title);
-                                              });
-                                            }
-                                          },
-                                          selected: selectedNav == item.title,
-                                          selectedTileColor: Color(schoolcolor),
-                                          focusColor: Color(schoolcolor),
-                                          hoverColor: Color(schoolcolor),
-                                        );
-                                      }).toList(),
-                                    );
+      var isWide = constraints.maxWidth > 800;
+      return Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.white, // Lighter shade of green
+              Color(schoolcolor), // Darker shade of green
+            ],
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+          ),
+        ),
+        width: isCollapsed && !isWide
+            ? MediaQuery.of(context).size.width * 0.2
+            : isCollapsed && isWide
+                ? constraints.maxWidth * 0.2
+                : null,
+        child: Drawer(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          child: SingleChildScrollView(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(vertical: 0)
+                              .add(safeArea),
+                          width: double.infinity,
+                          // color: Colors.white12,
+                          child: !isWide && schoollogo.isNotEmpty
+                              ? buildHeader(isCollapsed)
+                              : null,
+                        ),
+                        if (!isWide) const Divider(),
+                        if (user.picurl.isNotEmpty)
+                          buildProfileCircle(isCollapsed),
+                        const SizedBox(height: 20),
+                        const Divider(
+                          color: Colors.black26,
+                        ),
+                        const SizedBox(height: 20),
+                        buildList(
+                            items: itemsFirst,
+                            isCollapsed: isCollapsed,
+                            isWide: isWide),
+                        ListTile(
+                          tileColor: Colors.transparent,
+                          title: !isCollapsed
+                              ? ExpansionTile(
+                                  onExpansionChanged: (bool expanded) {
+                                    setState(() {
+                                      isExpanded = expanded;
+                                      provider.toggleExpanded();
+                                    });
                                   },
-                                ),
-                              ],
-                            )
-                          : null,
-                    ),
-
-                    const SizedBox(height: 20),
-                    const Divider(
-                      color: Colors.black26,
-                    ),
-                    buildLogout(items: itemsFirst2, isCollapsed: isCollapsed),
-                    const SizedBox(height: 20),
-                    !isCollapsed
-                        ? Center(
-                            child: Container(
-                              alignment: Alignment.center,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  const Icon(
-                                    Icons.copyright_outlined,
-                                    color: Colors.black45,
-                                    size: 18.0,
+                                  initiallyExpanded: isExpanded,
+                                  collapsedBackgroundColor: Colors.transparent,
+                                  tilePadding: EdgeInsets.zero,
+                                  backgroundColor: Colors.transparent,
+                                  iconColor: Colors.black,
+                                  collapsedIconColor: Colors.black,
+                                  title: Text(
+                                    'See more',
+                                    style: GoogleFonts.prompt(
+                                        color: Colors.black, fontSize: 16),
                                   ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  const Text(
-                                    'Copyright 2023',
-                                    style: TextStyle(
-                                        color: Colors.black45, fontSize: 12),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  const Text(
-                                    'Powered by',
-                                    style: TextStyle(
-                                        color: Colors.black45, fontSize: 12),
-                                    textAlign: TextAlign.center,
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  CircleAvatar(
-                                    radius: 15,
-                                    backgroundColor: Colors.transparent,
-                                    child: Image.asset(
-                                      "images/cklogo.png",
-                                      height: 25,
+                                  children: [
+                                    Builder(
+                                      builder: (BuildContext childContext) {
+                                        return Column(
+                                          children: itemFirstContinuation
+                                              .asMap()
+                                              .entries
+                                              .map((entry) {
+                                            final index = entry.key;
+                                            final item = entry.value;
+                                            return ListTile(
+                                              tileColor: !isWide
+                                                  ? selectedNav == item.title
+                                                      ? Color(schoolcolor)
+                                                      : null
+                                                  : widget.activenav ==
+                                                          item.title
+                                                      ? Color(schoolcolor)
+                                                      : null,
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(5),
+                                                ),
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.only(
+                                                      left: 20),
+                                              leading: Icon(
+                                                item.icon,
+                                                color: !isWide
+                                                    ? selectedNav == item.title
+                                                        ? Colors.white
+                                                        : Colors.black87
+                                                    : widget.activenav ==
+                                                            item.title
+                                                        ? Colors.white
+                                                        : Colors.black87,
+                                              ),
+                                              title: Text(
+                                                item.title,
+                                                style: GoogleFonts.prompt(
+                                                  color: !isWide
+                                                      ? selectedNav ==
+                                                              item.title
+                                                          ? Colors.white
+                                                          : Colors.black87
+                                                      : widget.activenav ==
+                                                              item.title
+                                                          ? Colors.white
+                                                          : Colors.black87,
+                                                  fontSize: 17,
+                                                  fontWeight: FontWeight.w600,
+                                                ),
+                                              ),
+                                              onTap: () {
+                                                selectItem2(context, index,
+                                                    item.title, isWide);
+                                                if (mounted) {
+                                                  setState(() {
+                                                    selectedNav = item
+                                                        .title; // Update the selected index
+                                                    final provider = Provider
+                                                        .of<NavigationProvider>(
+                                                            context,
+                                                            listen: false);
+                                                    provider.setActiveNav(
+                                                        item.title);
+                                                  });
+                                                }
+                                              },
+                                              selected: !isWide
+                                                  ? selectedNav == item.title
+                                                  : widget.activenav ==
+                                                      item.title,
+                                              selectedTileColor:
+                                                  Color(schoolcolor),
+                                            );
+                                          }).toList(),
+                                        );
+                                      },
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  buildCollapseIcon(context, isCollapsed),
-                                ],
+                                  ],
+                                )
+                              : null,
+                        ),
+                        const SizedBox(height: 20),
+                        const Divider(
+                          color: Colors.black26,
+                        ),
+                        buildLogout(
+                            items: itemsFirst2,
+                            isCollapsed: isCollapsed,
+                            isWide: isWide),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  !isCollapsed && !isWide
+                      ? Row(
+                          children: [
+                            const Expanded(child: Copyright()),
+                            buildCollapseIcon(context, isCollapsed),
+                          ],
+                        )
+                      : !isWide
+                          ? CircleAvatar(
+                              radius: 15,
+                              backgroundColor: Colors.transparent,
+                              child: Image.asset(
+                                "images/cklogo.png",
+                                height: 25,
                               ),
-                            ),
-                          )
-                        : CircleAvatar(
-                            radius: 15,
-                            backgroundColor: Colors.transparent,
-                            child: Image.asset(
-                              "images/cklogo.png",
-                              height: 25,
-                            ),
-                          ),
-                    isCollapsed
-                        ? buildCollapseIcon(context, isCollapsed)
-                        : const SizedBox(height: 0),
-                    const SizedBox(height: 50),
-
-                    // buildCollapseIcon(context, isCollapsed),
-                  ],
-                ),
+                            )
+                          : const SizedBox.shrink(),
+                  isCollapsed && !isWide
+                      ? buildCollapseIcon(context, isCollapsed)
+                      : const SizedBox(height: 0),
+                  const SizedBox(height: 20),
+                ],
               ),
             ),
-          );
-        },
-      ),
-    );
+          ),
+        ),
+      );
+    });
   }
 
-  void selectItem2(BuildContext context, int index, String title) {
+  void selectItem2(BuildContext context, int index, String title, bool isWide) {
     if (mounted) {
       setState(() {
         selectedNav = title;
@@ -334,25 +335,21 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
       });
     }
 
-    Navigator.of(context).pop();
+    !isWide ? Navigator.of(context).pop() : null;
 
     switch (index) {
       case 0:
         widget.updateData(const Billing(), "Billing Information");
-        // navigateTo(const Billing());
         break;
       case 1:
         widget.updateData(const SchoolCalendar(), "School Calendar");
-        // navigateTo(const SchoolCalendar());
         break;
       case 2:
         widget.updateData(
             const SemesterInformation(), "Enrollment Information");
-        // navigateTo(const SemesterInformation());
         break;
       case 3:
         widget.updateData(const StudentProfile(), "Student Profile");
-        // navigateTo(const StudentProfile());
         break;
     }
   }
@@ -361,6 +358,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
   Widget buildList({
     required bool isCollapsed,
     required List<DrawerItem> items,
+    required bool isWide,
     int indexOffset = 0,
   }) =>
       ListView.separated(
@@ -379,12 +377,13 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
             text: item.title,
             icon: item.icon,
             onClicked: () =>
-                selectItem(context, indexOffset + index, item.title),
+                selectItem(context, indexOffset + index, item.title, isWide),
+            isWide: isWide,
           );
         },
       );
 
-  void selectItem(BuildContext context, int index, String title) {
+  void selectItem(BuildContext context, int index, String title, bool isWide) {
     if (mounted) {
       setState(() {
         selectedNav = title;
@@ -395,23 +394,19 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
       });
     }
 
-    Navigator.of(context).pop();
+    !isWide ? Navigator.of(context).pop() : null;
     switch (index) {
       case 0:
         widget.updateData(Dash(updateData: widget.updateData), "Dashboard");
-        // navigateTo(const Home());
         break;
       case 1:
         widget.updateData(const Attendance(), "Attendance");
-        // navigateTo(const AttendancePage());
         break;
       case 2:
         widget.updateData(const ReportCard(), "Report Card");
-        // navigateTo(const ReportCard());
         break;
       case 3:
         widget.updateData(const ClassSchedPage(), "Class Schedule");
-        // navigateTo(const ClassSchedule());
         break;
     }
   }
@@ -421,36 +416,77 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     required String text,
     required IconData icon,
     VoidCallback? onClicked,
+    required bool isWide,
   }) {
     return Material(
-      color: Colors.transparent,
-      child: isCollapsed
-          ? ListTile(
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5))),
-              selected: selectedNav.toLowerCase() == text.toLowerCase(),
-              selectedTileColor: Color(schoolcolor),
-              title: Icon(icon,
-                  color: selectedNav == text ? Colors.white : Colors.black87),
-            )
-          : ListTile(
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(Radius.circular(5))),
-              selected: selectedNav == text,
-              selectedTileColor: Color(schoolcolor),
-              leading: Icon(icon,
-                  color: selectedNav == text ? Colors.white : Colors.black87),
-              title: Text(
-                text,
-                style: GoogleFonts.prompt(
-                  fontWeight: FontWeight.w600,
-                  color: selectedNav == text ? Colors.white : Colors.black87,
-                  fontSize: 17,
-                ),
-              ),
-              onTap: onClicked,
-            ),
-    );
+        color: Colors.transparent,
+        child: isCollapsed && !isWide
+            ? ListTile(
+                shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(5))),
+                selected: selectedNav.toLowerCase() == text.toLowerCase(),
+                selectedTileColor: Color(schoolcolor),
+                title: Icon(icon,
+                    color: selectedNav == text ? Colors.white : Colors.black87),
+              )
+            : isCollapsed && isWide
+                ? ListTile(
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.all(Radius.circular(5))),
+                    selected:
+                        widget.activenav.toLowerCase() == text.toLowerCase(),
+                    selectedTileColor: Color(schoolcolor),
+                    title: Icon(icon,
+                        color: widget.activenav == text
+                            ? Colors.white
+                            : Colors.black87),
+                  )
+                : !isCollapsed && !isWide
+                    ? ListTile(
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(5))),
+                        selected: selectedNav == text,
+                        selectedTileColor: Color(schoolcolor),
+                        leading: Icon(icon,
+                            color: selectedNav == text
+                                ? Colors.white
+                                : Colors.black87),
+                        title: Text(
+                          text,
+                          style: GoogleFonts.prompt(
+                            fontWeight: FontWeight.w600,
+                            color: selectedNav == text
+                                ? Colors.white
+                                : Colors.black87,
+                            fontSize: 17,
+                          ),
+                        ),
+                        onTap: onClicked,
+                      )
+                    : !isCollapsed && isWide
+                        ? ListTile(
+                            shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            selected: widget.activenav == text,
+                            selectedTileColor: Color(schoolcolor),
+                            leading: Icon(icon,
+                                color: widget.activenav == text
+                                    ? Colors.white
+                                    : Colors.black87),
+                            title: Text(
+                              text,
+                              style: GoogleFonts.prompt(
+                                fontWeight: FontWeight.w600,
+                                color: widget.activenav == text
+                                    ? Colors.white
+                                    : Colors.black87,
+                                fontSize: 17,
+                              ),
+                            ),
+                            onTap: onClicked,
+                          )
+                        : null);
   }
 
   Widget buildCollapseIcon(BuildContext context, bool isCollapsed) {
@@ -595,6 +631,7 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
     required bool isCollapsed,
     required List<DrawerItem> items,
     int indexOffset = 0,
+    required bool isWide,
   }) =>
       ListView.separated(
         padding: isCollapsed
@@ -611,7 +648,8 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
               isCollapsed: isCollapsed,
               text: item.title,
               icon: item.icon,
-              onClicked: () => showLogoutConfirmationDialog(context));
+              onClicked: () => showLogoutConfirmationDialog(context),
+              isWide: isWide);
         },
       );
 

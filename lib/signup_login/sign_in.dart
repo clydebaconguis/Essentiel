@@ -1,6 +1,7 @@
 import 'dart:convert';
+import 'package:essentiel/pages/diocese/dashboard.dart';
 import 'package:essentiel/util/app_util.dart';
-import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:essentiel/api/my_api.dart';
 import 'package:essentiel/pages/home.dart';
@@ -92,7 +93,9 @@ class _SignInState extends State<SignIn> {
           schoolabbv = body[0]['abbreviation'] ?? '';
           schoolname = body[0]['schoolname'] ?? '';
           schooladdress = body[0]['address'] ?? '';
-          changeStatusBarColor();
+          if (kIsWeb) {
+            AppUtil().changeStatusBarColor(schoolcolor);
+          }
         });
       }
       final response = await http.head(Uri.parse('$host$schoollogo'));
@@ -101,15 +104,6 @@ class _SignInState extends State<SignIn> {
           isValid = response.statusCode == 200;
         });
       }
-    }
-  }
-
-  changeStatusBarColor() async {
-    await FlutterStatusbarcolor.setStatusBarColor(Color(schoolcolor));
-    if (useWhiteForeground(Color(schoolcolor))) {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-    } else {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
     }
   }
 
@@ -231,11 +225,10 @@ class _SignInState extends State<SignIn> {
           builder: (BuildContext context, BoxConstraints constraints) {
             // Determine whether the layout width is wider than a threshold (e.g., 600)
             bool isWideScreen = constraints.maxWidth > 700;
-            bool isWider = constraints.maxWidth > 600;
             return Container(
               constraints: BoxConstraints(
                 maxHeight: isWideScreen ? 700 : double.infinity,
-                maxWidth: isWideScreen ? 700 : double.infinity,
+                maxWidth: 500,
               ), // Set max width for larger screens
               decoration: isWideScreen
                   ? BoxDecoration(
@@ -251,13 +244,7 @@ class _SignInState extends State<SignIn> {
                       ],
                     )
                   : null,
-              width: isWideScreen ? constraints.maxWidth / 2 : null,
-              padding: EdgeInsets.symmetric(
-                  horizontal: isWideScreen
-                      ? 100
-                      : isWider
-                          ? 70
-                          : 30),
+              padding: const EdgeInsets.symmetric(horizontal: 30),
               alignment: Alignment.center,
               child: SingleChildScrollView(
                 child: Column(
@@ -288,7 +275,7 @@ class _SignInState extends State<SignIn> {
                         textStyle: TextStyle(
                           color: Color(schoolcolor),
                           fontWeight: FontWeight.bold,
-                          fontSize: 24,
+                          fontSize: 23,
                         ),
                       ),
                       textAlign: TextAlign.center,
@@ -324,6 +311,18 @@ class _SignInState extends State<SignIn> {
                               'Please inform the school authority or your teacher for further assistance.');
                         },
                       ),
+                    ),
+                    GestureDetector(
+                      child: Text('School Admin',
+                          style: GoogleFonts.poppins(
+                              fontSize: 14, fontWeight: FontWeight.w500)),
+                      onTap: () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const Dashboard(),
+                            ),
+                            (Route<dynamic> route) => false);
+                      },
                     ),
                   ],
                 ),

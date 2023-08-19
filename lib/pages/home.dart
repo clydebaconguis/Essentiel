@@ -1,11 +1,13 @@
 import 'package:essentiel/api/my_api.dart';
+import 'package:essentiel/components/copyright.dart';
 import 'package:essentiel/provider/navigation_provider.dart';
+import 'package:essentiel/util/app_util.dart';
 import 'package:essentiel/widget/navigation_drawer_widget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_statusbarcolor_ns/flutter_statusbarcolor_ns.dart';
 import 'package:essentiel/pages/dash.dart';
 // import 'package:http/http.dart' as http;
 
@@ -54,29 +56,21 @@ class _HomepageState extends State<Homepage> {
   }
 
   updateData(Widget page, String pName) {
-    setState(() {
-      currentPage = page;
-      pageName = pName;
-    });
+    if (mounted) {
+      setState(() {
+        currentPage = page;
+        pageName = pName;
+      });
+    }
   }
 
   @override
   void initState() {
-    changeStatusBarColor();
     getSchoolInfo();
     currentPage = Dash(
       updateData: updateData,
     );
     super.initState();
-  }
-
-  changeStatusBarColor() async {
-    await FlutterStatusbarcolor.setStatusBarColor(Color(schoolcolor));
-    if (useWhiteForeground(Color(schoolcolor))) {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-    } else {
-      FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
-    }
   }
 
   getSchoolInfo() async {
@@ -85,8 +79,8 @@ class _HomepageState extends State<Homepage> {
       schoolcolor = localStorage.getInt('schoolcolor') ?? 0;
       schoollogo = localStorage.getString('schoollogo') ?? '';
     });
-    if (schoolcolor > 0) {
-      changeStatusBarColor();
+    if (schoolcolor > 0 && kIsWeb) {
+      AppUtil().changeStatusBarColor(schoolcolor);
     }
   }
 
@@ -97,73 +91,101 @@ class _HomepageState extends State<Homepage> {
         builder: (BuildContext context, BoxConstraints constraints) {
           var isWide = constraints.maxWidth > 800;
           return Scaffold(
+            backgroundColor: Colors.white,
+            drawer: !isWide
+                ? NavigationDrawerWidget(
+                    updateData: updateData,
+                    activenav: '',
+                  )
+                : null,
+            key: _scaffoldKey,
+            appBar: AppBar(
+              shadowColor: Colors.white38,
+              toolbarHeight: 65,
+              titleSpacing: 0,
+              elevation: 4.0,
               backgroundColor: Colors.white,
-              drawer: !isWide
-                  ? NavigationDrawerWidget(updateData: updateData)
-                  : null,
-              key: _scaffoldKey,
-              appBar: AppBar(
-                shadowColor: Colors.white38,
-                toolbarHeight: 65,
-                titleSpacing: 0,
-                elevation: 4.0,
-                backgroundColor: Colors.white,
-                leading: !isWide
-                    ? IconButton(
-                        icon: const Icon(
-                          Icons.menu,
-                          color: Colors.black, // Set the color of the icon
-                        ),
-                        onPressed: _openDrawer,
-                      )
-                    : null,
-                title: Padding(
-                  padding: const EdgeInsets.only(
-                      right: 14), // Add desired padding on the right side
-                  child: Row(
-                    children: [
-                      if (schoollogo.isNotEmpty)
-                        CircleAvatar(
-                          backgroundColor: Colors.white,
-                          radius: 23,
-                          // backgroundImage: AssetImage("images/spctLogo.jpg"),
-                          backgroundImage: NetworkImage('$host$schoollogo'),
-                        ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          pageName,
-                          style: GoogleFonts.prompt(
-                            fontSize: 22,
-                            color: schoolcolor > 0
-                                ? Color(schoolcolor)
-                                : Colors.indigo,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
+              leading: !isWide
+                  ? IconButton(
+                      icon: const Icon(
+                        Icons.menu,
+                        color: Colors.black, // Set the color of the icon
                       ),
-                    ],
-                  ),
+                      onPressed: _openDrawer,
+                    )
+                  : null,
+              title: Padding(
+                padding: const EdgeInsets.only(
+                    right: 14), // Add desired padding on the right side
+                child: Row(
+                  children: [
+                    if (isWide)
+                      SizedBox(
+                        width: constraints.maxWidth * 0.02,
+                      ),
+                    if (schoollogo.isNotEmpty)
+                      CircleAvatar(
+                        backgroundColor: Colors.white,
+                        radius: 23,
+                        // backgroundImage: AssetImage("images/spctLogo.jpg"),
+                        backgroundImage: NetworkImage('$host$schoollogo'),
+                      ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        pageName,
+                        style: GoogleFonts.prompt(
+                          fontSize: 22,
+                          color: schoolcolor > 0
+                              ? Color(schoolcolor)
+                              : Colors.indigo,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              body: Row(
-                children: [
-                  if (constraints.maxWidth > 1000)
-                    NavigationDrawerWidget(updateData: updateData),
-                  Expanded(
-                    child: currentPage ==
-                            Dash(
-                              updateData: updateData,
-                            )
-                        ? Dash(
-                            updateData: updateData,
-                          )
-                        : currentPage,
-                  )
-                ],
-              ));
+            ),
+            body: Row(
+              children: [
+                if (isWide)
+                  NavigationDrawerWidget(
+                    updateData: updateData,
+                    activenav: pageName,
+                  ),
+                Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: isWide
+                              ? const EdgeInsets.only(
+                                  left: 20, right: 20, top: 10)
+                              : const EdgeInsets.all(0),
+                          child: currentPage ==
+                                  Dash(
+                                    updateData: updateData,
+                                  )
+                              ? Dash(
+                                  updateData: updateData,
+                                )
+                              : currentPage,
+                        ),
+                      ),
+                      if (isWide)
+                        const Padding(
+                          padding: EdgeInsets.all(10.0),
+                          child: Copyright(),
+                        ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          );
         },
       ),
     );
