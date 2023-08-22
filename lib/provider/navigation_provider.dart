@@ -7,6 +7,7 @@ class NavigationProvider extends ChangeNotifier {
   bool get isCollapsed => _isCollapsed;
   bool get isExpanded => _isExpanded;
   String get activeNav => _activeNav.isNotEmpty ? _activeNav : 'Dashboard';
+  String get activeNav2 => _activeNav.isNotEmpty ? _activeNav : 'Home';
 
   void setActiveNav(data) {
     _activeNav = data;

@@ -79,7 +79,7 @@ class _HomepageState extends State<Homepage> {
       schoolcolor = localStorage.getInt('schoolcolor') ?? 0;
       schoollogo = localStorage.getString('schoollogo') ?? '';
     });
-    if (schoolcolor > 0 && kIsWeb) {
+    if (schoolcolor > 0 && !kIsWeb) {
       AppUtil().changeStatusBarColor(schoolcolor);
     }
   }
