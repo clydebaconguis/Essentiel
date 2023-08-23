@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:essentiel/components/copyright.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -70,131 +71,137 @@ class _HomeDioState extends State<HomeDio> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView(
-        children: [
-          Card(
-            elevation: 8,
-            margin: const EdgeInsets.all(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    _currentDay,
-                    style: GoogleFonts.prompt(
-                        color: Colors.green.shade800,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        _currentDate,
-                        style: GoogleFonts.prompt(
-                            fontSize: 17, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                      Text(
-                        _currentTime,
-                        style: GoogleFonts.prompt(
-                            fontSize: 17, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            elevation: 8,
-            margin: const EdgeInsets.symmetric(
-              horizontal: 16.0,
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16.0,
-                vertical: 16.0,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'School Calendar',
-                    style: GoogleFonts.prompt(
-                      color: Colors.blue.shade800,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
+    return LayoutBuilder(
+        builder: (BuildContext context, BoxConstraints constraints) {
+      var isWide = constraints.maxWidth > 800;
+      return Scaffold(
+        body: ListView(
+          children: [
+            Card(
+              elevation: 8,
+              margin: const EdgeInsets.all(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _currentDay,
+                      style: GoogleFonts.prompt(
+                          color: Colors.green.shade800,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  TableCalendar(
-                    firstDay: DateTime.utc(2023, 8, 1),
-                    lastDay: DateTime.utc(2024, 7, 31),
-                    focusedDay: DateTime.now(),
-                    selectedDayPredicate: (day) {
-                      return isSameDay(day, DateTime.now());
-                    },
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Card(
-            elevation: 8,
-            margin: const EdgeInsets.all(16),
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Employee Attendance',
-                    style: GoogleFonts.prompt(
-                      color: Colors.red.shade800,
-                      fontSize: 22,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    onChanged: _filterEmployees,
-                    decoration: const InputDecoration(
-                      hintText: 'Search Employee',
-                      prefixIcon: Icon(Icons.search),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: _filteredEmployeeAttendanceList.length,
-                    itemBuilder: (context, index) {
-                      final employee = _filteredEmployeeAttendanceList[index];
-                      return ListTile(
-                        title: Text(employee.name),
-                        trailing: Text(
-                          employee.isPresent ? 'Present' : 'Absent',
-                          style: TextStyle(
-                            color:
-                                employee.isPresent ? Colors.green : Colors.red,
-                          ),
+                    const SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _currentDate,
+                          style: GoogleFonts.prompt(
+                              fontSize: 17, fontWeight: FontWeight.bold),
                         ),
-                      );
-                    },
-                  ),
-                ],
+                        const SizedBox(
+                          width: 10,
+                        ),
+                        Text(
+                          _currentTime,
+                          style: GoogleFonts.prompt(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const Copyright(),
-        ],
-      ),
-    );
+            Card(
+              elevation: 8,
+              margin: const EdgeInsets.symmetric(
+                horizontal: 16.0,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16.0,
+                  vertical: 16.0,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'School Calendar',
+                      style: GoogleFonts.prompt(
+                        color: Colors.blue.shade800,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TableCalendar(
+                      firstDay: DateTime.utc(2023, 8, 1),
+                      lastDay: DateTime.utc(2024, 7, 31),
+                      focusedDay: DateTime.now(),
+                      selectedDayPredicate: (day) {
+                        return isSameDay(day, DateTime.now());
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Card(
+              elevation: 8,
+              margin: const EdgeInsets.all(16),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Employee Attendance',
+                      style: GoogleFonts.prompt(
+                        color: Colors.red.shade800,
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      onChanged: _filterEmployees,
+                      decoration: const InputDecoration(
+                        hintText: 'Search Employee',
+                        prefixIcon: Icon(Icons.search),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _filteredEmployeeAttendanceList.length,
+                      itemBuilder: (context, index) {
+                        final employee = _filteredEmployeeAttendanceList[index];
+                        return ListTile(
+                          title: Text(employee.name),
+                          trailing: Text(
+                            employee.isPresent ? 'Present' : 'Absent',
+                            style: TextStyle(
+                              color: employee.isPresent
+                                  ? Colors.green
+                                  : Colors.red,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }
 

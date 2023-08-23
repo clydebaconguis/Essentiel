@@ -297,7 +297,10 @@ class _NavigationDrawerWidgetState extends State<NavigationDrawerWidget> {
                   !isCollapsed && !isWide
                       ? Row(
                           children: [
-                            const Expanded(child: Copyright()),
+                            Expanded(
+                                child: Copyright(
+                              labelColor: Colors.black,
+                            )),
                             buildCollapseIcon(context, isCollapsed),
                           ],
                         )

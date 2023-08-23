@@ -175,11 +175,12 @@ class _HomepageState extends State<Homepage> {
                               : currentPage,
                         ),
                       ),
-                      if (isWide)
-                        const Padding(
-                          padding: EdgeInsets.all(10.0),
-                          child: Copyright(),
+                      Padding(
+                        padding: const EdgeInsets.all(10.0),
+                        child: Copyright(
+                          labelColor: Colors.black,
                         ),
+                      ),
                     ],
                   ),
                 )

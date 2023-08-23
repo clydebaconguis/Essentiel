@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class Copyright extends StatelessWidget {
-  const Copyright({super.key});
+  Color labelColor = Colors.black;
+  Copyright({super.key, required this.labelColor});
 
   @override
   Widget build(BuildContext context) {
@@ -13,9 +14,9 @@ class Copyright extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.copyright_outlined,
-              color: Colors.black,
+              color: labelColor,
               size: 18.0,
             ),
             const SizedBox(
@@ -23,19 +24,16 @@ class Copyright extends StatelessWidget {
             ),
             Text(
               'Copyright $year',
-              style: const TextStyle(color: Colors.black, fontSize: 12),
+              style: TextStyle(color: labelColor, fontSize: 12),
               textAlign: TextAlign.center,
             ),
             const SizedBox(
               width: 10,
             ),
-            const Text(
+            Text(
               'Powered by',
-              style: TextStyle(color: Colors.black, fontSize: 12),
+              style: TextStyle(color: labelColor, fontSize: 12),
               textAlign: TextAlign.center,
-            ),
-            const SizedBox(
-              width: 8,
             ),
             CircleAvatar(
               radius: 15,

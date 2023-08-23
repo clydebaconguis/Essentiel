@@ -138,7 +138,9 @@ class _DashboardState extends State<Dashboard> {
                       },
                     ),
                   ),
-                  const Copyright(),
+                  Copyright(
+                    labelColor: Colors.black,
+                  ),
                 ],
               ),
             ),

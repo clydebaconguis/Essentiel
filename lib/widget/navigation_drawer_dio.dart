@@ -10,7 +10,11 @@ import 'package:essentiel/pages/attendance.dart';
 import 'package:essentiel/pages/billing_information.dart';
 import 'package:essentiel/pages/class_schedule.dart';
 import 'package:essentiel/pages/diocese/dashboard.dart';
+import 'package:essentiel/pages/diocese/school/pages/enrollment_statistics.dart';
+import 'package:essentiel/pages/diocese/school/pages/finance/accounts_receivable.dart';
+import 'package:essentiel/pages/diocese/school/pages/finance/cashier_transactions.dart';
 import 'package:essentiel/pages/diocese/school/pages/home.dart';
+import 'package:essentiel/pages/diocese/school/pages/hresource/employee_profile.dart';
 import 'package:essentiel/pages/home.dart';
 import 'package:essentiel/pages/report_card.dart';
 import 'package:essentiel/pages/school_calendar.dart';
@@ -50,11 +54,12 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
   var schoolabbv = '';
   var schoollogo = '';
   bool isExpanded = false;
+  bool isExpanded2 = false;
 
   @override
   void initState() {
     // getUser();
-    // getProviderFiles();
+    getProviderFiles();
     super.initState();
   }
 
@@ -124,7 +129,8 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
     var isCollapsed = provider.isCollapsed;
     if (mounted) {
       setState(() {
-        isExpanded = provider.isExpanded;
+        isExpanded = provider.isExpanded2;
+        isExpanded2 = provider.isExpanded3;
       });
     }
 
@@ -153,6 +159,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
           child: SizedBox(
             height: MediaQuery.of(context).size.height,
             child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
               children: [
                 Container(
                   padding:
@@ -177,7 +184,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                     isCollapsed: isCollapsed,
                     isWide: isWide),
                 ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                   tileColor: Colors.transparent,
                   title: !isCollapsed
                       ? ExpansionTile(
@@ -191,7 +198,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                           onExpansionChanged: (bool expanded) {
                             setState(() {
                               isExpanded = expanded;
-                              provider.toggleExpanded();
+                              provider.toggleExpanded2();
                             });
                           },
                           initiallyExpanded: isExpanded,
@@ -208,6 +215,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                             Builder(
                               builder: (BuildContext childContext) {
                                 return Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children:
                                       finance.asMap().entries.map((entry) {
                                     final index = entry.key;
@@ -254,8 +262,8 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                                         ),
                                       ),
                                       onTap: () {
-                                        // selectItem2(context, index,
-                                        //     item.title, isWide);
+                                        selectItem2(
+                                            context, index, item.title, isWide);
                                         if (mounted) {
                                           setState(() {
                                             selectedNav = item
@@ -282,7 +290,7 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                       : null,
                 ),
                 ListTile(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 0),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 0),
                   tileColor: Colors.transparent,
                   title: !isCollapsed
                       ? ExpansionTile(
@@ -290,19 +298,17 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                           // tilePadding:
                           //     const EdgeInsets.symmetric(horizontal: 12),
                           leading: const Icon(
-                            Icons.account_balance,
+                            Icons.people_alt,
                             color: Colors.white60,
                           ),
                           onExpansionChanged: (bool expanded) {
                             setState(() {
-                              isExpanded = expanded;
-                              provider.toggleExpanded();
+                              isExpanded2 = expanded;
+                              provider.toggleExpanded3();
                             });
                           },
-                          initiallyExpanded: isExpanded,
+                          initiallyExpanded: isExpanded2,
                           collapsedBackgroundColor: Colors.transparent,
-                          // tilePadding:
-                          //     const EdgeInsets.symmetric(horizontal: 20),
                           backgroundColor: Colors.transparent,
                           iconColor: Colors.white70,
                           collapsedIconColor: Colors.white70,
@@ -315,15 +321,15 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                             Builder(
                               builder: (BuildContext childContext) {
                                 return Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
                                   children:
                                       hresource.asMap().entries.map((entry) {
                                     final index = entry.key;
                                     final item = entry.value;
                                     return ListTile(
-                                      // horizontalTitleGap: 16,
                                       // contentPadding:
                                       //     const EdgeInsets.symmetric(
-                                      //         horizontal: 19),
+                                      // horizontal: 22),
                                       tileColor: !isWide
                                           ? selectedNav == item.title
                                               ? Colors.white70
@@ -362,19 +368,19 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                                         ),
                                       ),
                                       onTap: () {
-                                        // selectItem2(context, index,
-                                        //     item.title, isWide);
-                                        if (mounted) {
-                                          setState(() {
-                                            selectedNav = item
-                                                .title; // Update the selected index
-                                            final provider =
-                                                Provider.of<NavigationProvider>(
-                                                    context,
-                                                    listen: false);
-                                            provider.setActiveNav(item.title);
-                                          });
-                                        }
+                                        selectItem2(
+                                            context, 2, item.title, isWide);
+                                        // if (mounted) {
+                                        //   setState(() {
+                                        //     selectedNav = item
+                                        //         .title; // Update the selected index
+                                        //     final provider =
+                                        //         Provider.of<NavigationProvider>(
+                                        //             context,
+                                        //             listen: false);
+                                        //     provider.setActiveNav(item.title);
+                                        //   });
+                                        // }
                                       },
                                       selected: !isWide
                                           ? selectedNav == item.title
@@ -390,24 +396,75 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                       : null,
                 ),
                 ListTile(
-                  leading: const Icon(
+                  tileColor: !isWide
+                      ? selectedNav == 'Enrollment Statistics'
+                          ? Colors.white70
+                          : null
+                      : widget.activenav == 'Enrollment Statistics'
+                          ? Colors.white70
+                          : null,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(
+                      Radius.circular(5),
+                    ),
+                  ),
+                  horizontalTitleGap: 17,
+                  leading: Icon(
                     Icons.bar_chart_rounded,
-                    color: Colors.white54,
+                    color: !isWide
+                        ? selectedNav == 'Enrollment Statistics'
+                            ? Colors.green.shade800
+                            : Colors.white70
+                        : widget.activenav == 'Enrollment Statistics'
+                            ? Colors.green.shade800
+                            : Colors.white70,
                   ),
                   title: Text(
                     'Enrollment Statistics',
-                    style:
-                        GoogleFonts.prompt(color: Colors.white70, fontSize: 16),
+                    style: GoogleFonts.prompt(
+                        color: selectedNav == 'Enrollment Statistics'
+                            ? Colors.grey.shade800
+                            : Colors.white70,
+                        fontSize: 16),
                   ),
+                  selected: !isWide
+                      ? selectedNav == 'Enrollment Statistics'
+                      : widget.activenav == 'Enrollment Statistics',
+                  selectedTileColor: Colors.white70,
+                  onTap: () {
+                    selectItem2(context, 3, 'Enrollment Statistics', isWide);
+                    // if (mounted) {
+                    //   setState(() {
+                    //     selectedNav =
+                    //         'Enrollment Statistics'; // Update the selected index
+                    //     final provider = Provider.of<NavigationProvider>(
+                    //         context,
+                    //         listen: false);
+                    //     provider.setActiveNav('Enrollment Statistics');
+                    //   });
+                    // }
+                  },
                 ),
                 const SizedBox(height: 20),
                 const Divider(
                   color: Colors.white54,
                 ),
-                buildLogout(
-                    items: itemsFirst2,
-                    isCollapsed: isCollapsed,
-                    isWide: isWide),
+                Wrap(
+                  runSpacing: 20.0,
+                  children: [
+                    buildLogout(
+                      items: itemsFirst2,
+                      isCollapsed: isCollapsed,
+                      isWide: isWide,
+                    ),
+                    Copyright(
+                      labelColor: Colors.white54,
+                    ),
+                  ],
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),
@@ -431,17 +488,16 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
 
     switch (index) {
       case 0:
-        widget.updateData(const Billing(), "Billing Information");
+        widget.updateData(const Cashier(), "Cashier Transactions");
         break;
       case 1:
-        widget.updateData(const SchoolCalendar(), "School Calendar");
+        widget.updateData(const AccountReceivable(), "Account Receivable");
         break;
       case 2:
-        widget.updateData(
-            const SemesterInformation(), "Enrollment Information");
+        widget.updateData(const EmployeeProfile(), "Employee Profile");
         break;
       case 3:
-        widget.updateData(const StudentProfile(), "Student Profile");
+        widget.updateData(const EnrollmentStat(), "Enrollment Statistics");
         break;
     }
   }
@@ -652,10 +708,10 @@ class _NavigationDrawerWidget2State extends State<NavigationDrawerWidget2> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'CKC',
+                    'HSA',
                     style: GoogleFonts.prompt(
                       fontSize: 25,
-                      color: Colors.yellow,
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
